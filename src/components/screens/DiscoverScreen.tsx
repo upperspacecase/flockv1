@@ -1,0 +1,318 @@
+"use client";
+
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import MigrationMap from "@/components/maps/MigrationMap";
+import type { UserProfile, MigrationStop } from "@/data/mock-profiles";
+
+interface DiscoverScreenProps {
+  profiles: UserProfile[];
+  currentUser: UserProfile;
+  onMatch: (profile: UserProfile) => void;
+  onOpenProfile: () => void;
+  onOpenMessages: () => void;
+  onOpenConservation: () => void;
+}
+
+function findOverlaps(a: MigrationStop[], b: MigrationStop[]): MigrationStop[] {
+  const countriesA = new Set(a.map((s) => s.country));
+  return b.filter((s) => countriesA.has(s.country));
+}
+
+function getOverlapPhrase(count: number): string {
+  if (count === 0) return "Different paths, same spirit";
+  if (count === 1) return "Your paths cross in 1 place";
+  return `Your paths cross in ${count} places`;
+}
+
+function SwipeCard({
+  profile,
+  currentUser,
+  onSwipeLeft,
+  onSwipeRight,
+  isTop,
+}: {
+  profile: UserProfile;
+  currentUser: UserProfile;
+  onSwipeLeft: () => void;
+  onSwipeRight: () => void;
+  isTop: boolean;
+}) {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
+  const cardOpacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
+  const passLabelOpacity = useTransform(x, [-150, -50, 0], [1, 0.5, 0]);
+  const connectLabelOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
+
+  const allStops = [
+    profile.birthCountry,
+    ...profile.grewUp,
+    ...profile.recentMigrations,
+  ];
+
+  const userStops = [
+    currentUser.birthCountry,
+    ...currentUser.grewUp,
+    ...currentUser.recentMigrations,
+    ...currentUser.futurePlans,
+  ];
+  const profileStops = [...allStops, ...profile.futurePlans];
+  const overlaps = findOverlaps(userStops, profileStops);
+
+  const originLine = `Born in ${profile.birthCountry.country}${
+    profile.grewUp.length > 0
+      ? `, raised between ${profile.grewUp.map((s) => s.country).join(" and ")}`
+      : ""
+  }`;
+
+  const futureLine =
+    profile.futurePlans.length > 0
+      ? `Heading to ${profile.futurePlans.map((s) => s.country).join(" → ")}`
+      : null;
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
+    if (info.offset.x > 100 || info.velocity.x > 500) {
+      onSwipeRight();
+    } else if (info.offset.x < -100 || info.velocity.x < -500) {
+      onSwipeLeft();
+    }
+  };
+
+  if (!isTop) {
+    return (
+      <motion.div
+        className="absolute inset-x-4 top-0 bg-card rounded-2xl border border-border/40 overflow-hidden"
+        style={{ height: "calc(100% - 80px)" }}
+        initial={{ scale: 0.95, y: 10 }}
+        animate={{ scale: 0.95, y: 10 }}
+      >
+        <div className="p-4 opacity-30">
+          <MigrationMap stops={allStops} width={300} height={140} compact animated={false} />
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      className="absolute inset-x-4 top-0 bg-card rounded-2xl border border-border/40 overflow-hidden cursor-grab active:cursor-grabbing shadow-lg"
+      style={{ x, rotate, opacity: cardOpacity, height: "calc(100% - 80px)" }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.8}
+      onDragEnd={handleDragEnd}
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{
+        x: x.get() > 0 ? 400 : -400,
+        y: x.get() > 0 ? -80 : 20,
+        opacity: 0,
+        rotate: x.get() > 0 ? 15 : -15,
+        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+      }}
+      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+    >
+      <div className="h-full overflow-y-auto">
+        {/* Migration map */}
+        <div className="p-4 pb-2">
+          <MigrationMap
+            stops={allStops}
+            futureStops={profile.futurePlans}
+            overlappingStops={overlaps}
+            width={300}
+            height={150}
+            showLabels
+            animated
+          />
+        </div>
+
+        {/* Overlap indicator */}
+        <div className="px-5 pb-2">
+          <p className="text-xs text-accent font-medium">
+            {getOverlapPhrase(overlaps.length)}
+          </p>
+        </div>
+
+        {/* Profile info */}
+        <div className="px-5 pb-6 space-y-3">
+          <div className="flex items-center gap-3">
+            {/* Avatar */}
+            <div className="w-12 h-12 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
+              <span className="text-lg">{profile.name[0]}</span>
+            </div>
+            <div>
+              <h3
+                className="text-xl font-light"
+                style={{ fontFamily: "var(--font-display), Georgia, serif" }}
+              >
+                {profile.name}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Currently in {profile.currentLocation.country}
+              </p>
+            </div>
+          </div>
+
+          <p className="text-sm text-foreground/70">{originLine}</p>
+
+          {futureLine && (
+            <div className="flex items-start gap-2">
+              <span className="text-accent text-xs mt-0.5">→</span>
+              <p className="text-sm text-foreground/50 italic">{futureLine}</p>
+            </div>
+          )}
+
+          {profile.bio && (
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              {profile.bio}
+            </p>
+          )}
+
+          {/* Looking for badge */}
+          <span className="inline-block text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+            {profile.lookingFor === "romantic"
+              ? "Looking for romance"
+              : profile.lookingFor === "friends"
+                ? "Looking for friends"
+                : "Open to anything"}
+          </span>
+        </div>
+      </div>
+
+      {/* Swipe hint overlays */}
+      <motion.div
+        className="absolute top-6 left-6 px-3 py-1.5 rounded-lg border-2 border-red-400/60 text-red-400 text-sm font-medium rotate-[-12deg]"
+        style={{ opacity: passLabelOpacity }}
+      >
+        Pass
+      </motion.div>
+      <motion.div
+        className="absolute top-6 right-6 px-3 py-1.5 rounded-lg border-2 border-teal/60 text-teal text-sm font-medium rotate-[12deg]"
+        style={{ opacity: connectLabelOpacity }}
+      >
+        Connect
+      </motion.div>
+    </motion.div>
+  );
+}
+
+export default function DiscoverScreen({
+  profiles,
+  currentUser,
+  onMatch,
+  onOpenProfile,
+  onOpenMessages,
+  onOpenConservation,
+}: DiscoverScreenProps) {
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const remaining = profiles.filter((p) => !dismissed.has(p.id));
+  const visibleProfiles = remaining.slice(0, 2);
+
+  const handleSwipeLeft = () => {
+    if (remaining.length === 0) return;
+    setDismissed((prev) => new Set([...prev, remaining[0].id]));
+  };
+
+  const handleSwipeRight = () => {
+    if (remaining.length === 0) return;
+    const profile = remaining[0];
+    setDismissed((prev) => new Set([...prev, profile.id]));
+    onMatch(profile);
+  };
+
+  return (
+    <div className="h-screen-safe flex flex-col bg-background">
+      {/* Navigation */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
+        <button
+          onClick={onOpenProfile}
+          className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
+        >
+          T
+        </button>
+        <h1
+          className="text-lg font-light tracking-wide"
+          style={{ fontFamily: "var(--font-display), Georgia, serif" }}
+        >
+          Discover
+        </h1>
+        <div className="flex gap-2">
+          <button
+            onClick={onOpenConservation}
+            className="w-8 h-8 rounded-full bg-teal-soft flex items-center justify-center text-xs cursor-pointer"
+            title="Conservation"
+          >
+            🌿
+          </button>
+          <button
+            onClick={onOpenMessages}
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
+            title="Messages"
+          >
+            💬
+          </button>
+        </div>
+      </div>
+
+      {/* Card stack */}
+      <div className="flex-1 relative px-0 py-4">
+        <AnimatePresence mode="popLayout">
+          {visibleProfiles.length > 0 ? (
+            visibleProfiles
+              .map((profile, i) => (
+                <SwipeCard
+                  key={profile.id}
+                  profile={profile}
+                  currentUser={currentUser}
+                  onSwipeLeft={handleSwipeLeft}
+                  onSwipeRight={handleSwipeRight}
+                  isTop={i === 0}
+                />
+              ))
+              .reverse()
+          ) : (
+            <motion.div
+              key="empty"
+              className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <p
+                className="text-2xl font-light text-muted-foreground mb-2"
+                style={{ fontFamily: "var(--font-display), Georgia, serif" }}
+              >
+                The flock is resting.
+              </p>
+              <p className="text-sm text-muted-foreground/60">
+                Check back as more travelers arrive.
+              </p>
+              <div className="mt-8 text-4xl opacity-40">🐦🐦🐦</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Action buttons */}
+      {visibleProfiles.length > 0 && (
+        <div className="flex items-center justify-center gap-8 pb-6 pt-2">
+          <button
+            onClick={handleSwipeLeft}
+            className="w-14 h-14 rounded-full border-2 border-border hover:border-red-400/40 flex items-center justify-center text-xl transition-colors cursor-pointer hover:bg-red-400/5"
+            title="Pass"
+          >
+            ✕
+          </button>
+          <button
+            onClick={handleSwipeRight}
+            className="w-14 h-14 rounded-full border-2 border-teal hover:border-teal flex items-center justify-center text-xl transition-colors cursor-pointer hover:bg-teal-soft"
+            title="Connect"
+          >
+            ♥
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
