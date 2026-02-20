@@ -22,7 +22,10 @@ interface DiscoverScreenProps {
   onOpenProfile: () => void;
   onOpenMessages: () => void;
   onOpenConservation: () => void;
+  onOpenFlock: () => void;
   onRefreshProfiles: () => Promise<void>;
+  onNeedProfile: (profileId: string) => void;
+  isProfileComplete: boolean;
   hasNewActivity?: boolean;
 }
 
@@ -210,7 +213,10 @@ export default function DiscoverScreen({
   onOpenProfile,
   onOpenMessages,
   onOpenConservation,
+  onOpenFlock,
   onRefreshProfiles,
+  onNeedProfile,
+  isProfileComplete,
   hasNewActivity,
 }: DiscoverScreenProps) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
@@ -229,6 +235,13 @@ export default function DiscoverScreen({
     const profile = remaining[0];
     setDismissed((prev) => new Set([...prev, profile._id]));
     setLiking(true);
+
+    // Gate: require profile before liking
+    if (!isProfileComplete) {
+      setLiking(false);
+      onNeedProfile(profile._id);
+      return;
+    }
 
     try {
       const res = await fetch("/api/likes", {
@@ -265,20 +278,27 @@ export default function DiscoverScreen({
         <div className="flex gap-2">
           <button
             onClick={onOpenConservation}
-            className="w-8 h-8 rounded-full bg-teal-soft flex items-center justify-center text-xs cursor-pointer"
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
             title="Conservation"
           >
             🌿
           </button>
           <button
-            onClick={onOpenMessages}
+            onClick={onOpenFlock}
             className="relative w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
-            title="Messages"
+            title="Your Flock"
           >
-            💬
+            🐦
             {hasNewActivity && (
               <span className="absolute -top-1 -right-1 text-[10px] leading-none">🍃</span>
             )}
+          </button>
+          <button
+            onClick={onOpenMessages}
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
+            title="Messages"
+          >
+            💬
           </button>
         </div>
       </div>

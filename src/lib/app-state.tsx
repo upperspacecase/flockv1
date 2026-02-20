@@ -26,6 +26,7 @@ export interface AppUser {
   name: string;
   age: number;
   photo: string;
+  photos: string[];
   bio?: string;
   birthCountry: MigrationStop;
   grewUp: MigrationStop[];
@@ -56,11 +57,13 @@ export type AppScreen =
   | "splash"
   | "onboarding"
   | "auth"
+  | "create-profile"
   | "discover"
   | "profile"
   | "messages"
   | "conservation"
-  | "match";
+  | "match"
+  | "flock";
 
 // ─── Context ─────────────────────────────────────────────
 

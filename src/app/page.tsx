@@ -1,16 +1,19 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import { useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { AppProvider, useApp } from "@/lib/app-state";
 import SplashScreen from "@/components/screens/SplashScreen";
 import OnboardingScreen from "@/components/screens/OnboardingScreen";
 import type { OnboardingResult } from "@/components/screens/OnboardingScreen";
 import ProfileScreen from "@/components/screens/ProfileScreen";
+import ProfileCreationScreen from "@/components/screens/ProfileCreationScreen";
 import DiscoverScreen from "@/components/screens/DiscoverScreen";
 import MatchScreen from "@/components/screens/MatchScreen";
 import MessagesScreen from "@/components/screens/MessagesScreen";
 import ConservationScreen from "@/components/screens/ConservationScreen";
+import FlockScreen from "@/components/screens/FlockScreen";
 import BreathingLoader from "@/components/ui/BreathingLoader";
 
 const ONBOARDING_KEY = "flock_onboarding_data";
@@ -32,6 +35,11 @@ function AppContent() {
     refreshMatches,
     refreshProfiles,
   } = useApp();
+
+  const [pendingLikeId, setPendingLikeId] = useState<string | null>(null);
+
+  // Check if user needs profile creation (has name + at least 1 photo)
+  const isProfileComplete = !!(dbUser?.name && dbUser.photos?.length > 0);
 
   // Handle onboarding completion
   const handleOnboardingComplete = async (data: OnboardingResult) => {
@@ -179,10 +187,19 @@ function AppContent() {
                 setScreen("messages");
               }}
               onOpenConservation={() => setScreen("conservation")}
+              onOpenFlock={() => {
+                markActivitySeen();
+                setScreen("flock");
+              }}
               onMatch={(match) => {
                 setCurrentMatchView(match);
                 setScreen("match");
               }}
+              onNeedProfile={(profileId) => {
+                setPendingLikeId(profileId);
+                setScreen("create-profile");
+              }}
+              isProfileComplete={isProfileComplete}
               onRefreshProfiles={refreshProfiles}
               hasNewActivity={hasNewActivity}
             />
@@ -250,6 +267,76 @@ function AppContent() {
           >
             <ConservationScreen
               onBack={() => setScreen("discover")}
+            />
+          </motion.div>
+        )}
+
+        {screen === "create-profile" && (
+          <motion.div
+            key="create-profile"
+            className="absolute inset-0"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <ProfileCreationScreen
+              user={dbUser}
+              onComplete={async (data) => {
+                try {
+                  const res = await fetch("/api/users/me", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                  });
+                  const result = await res.json();
+                  if (result.user) setDbUser(result.user);
+                } catch (err) {
+                  console.error("Failed to save profile:", err);
+                }
+
+                // Resume the pending like
+                if (pendingLikeId) {
+                  try {
+                    const likeRes = await fetch("/api/likes", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ likedUserId: pendingLikeId }),
+                    });
+                    const likeData = await likeRes.json();
+                    if (likeData.matched && likeData.match) {
+                      setCurrentMatchView(likeData.match);
+                      setPendingLikeId(null);
+                      setScreen("match");
+                      return;
+                    }
+                  } catch (err) {
+                    console.error("Failed to like:", err);
+                  }
+                  setPendingLikeId(null);
+                }
+                setScreen("discover");
+              }}
+              onSkip={() => {
+                setPendingLikeId(null);
+                setScreen("discover");
+              }}
+            />
+          </motion.div>
+        )}
+
+        {screen === "flock" && (
+          <motion.div
+            key="flock"
+            className="absolute inset-0"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <FlockScreen
+              onBack={() => setScreen("discover")}
+              onOpenChat={() => setScreen("messages")}
             />
           </motion.div>
         )}

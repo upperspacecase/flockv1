@@ -21,6 +21,7 @@ export interface IUser extends Document {
     name: string;
     age?: number;
     photo: string;
+    photos: string[];
     bio?: string;
     birthCountry: {
         country: string;
@@ -69,6 +70,7 @@ const UserSchema = new Schema<IUser>(
         name: { type: String, default: "" },
         age: { type: Number, default: 0 },
         photo: { type: String, default: "" },
+        photos: { type: [String], default: [] },
         bio: { type: String, default: "" },
         birthCountry: { type: MigrationStopSchema, required: true },
         grewUp: { type: [MigrationStopSchema], default: [] },
