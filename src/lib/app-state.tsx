@@ -115,8 +115,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           setDbUser(data.user);
           setScreen("discover");
         } else {
-          // Signed in but hasn't onboarded
-          setScreen("onboarding");
+          // Signed in but no DB record — check localStorage for pending onboarding
+          const stored = localStorage.getItem("flock_onboarding_data");
+          if (stored) {
+            // Auto-save onboarding data to DB
+            const onboardingData = JSON.parse(stored);
+            const saveRes = await fetch("/api/users/me", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(onboardingData),
+            });
+            const saveData = await saveRes.json();
+            if (saveData.user) {
+              setDbUser(saveData.user);
+              localStorage.removeItem("flock_onboarding_data");
+              setScreen("discover");
+            }
+          } else {
+            // No localStorage data either — fresh user, needs onboarding
+            setScreen("onboarding");
+          }
         }
       } catch (err) {
         console.error("Failed to load user:", err);

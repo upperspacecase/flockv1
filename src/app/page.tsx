@@ -38,55 +38,27 @@ function AppContent() {
 
     if (isSignedIn) {
       // Already signed in — save to DB directly
-      await saveOnboardingToDb(data);
+      try {
+        const res = await fetch("/api/users/me", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+        if (result.user) {
+          setDbUser(result.user);
+          localStorage.removeItem(ONBOARDING_KEY);
+          setScreen("discover");
+        }
+      } catch (err) {
+        console.error("Failed to save onboarding:", err);
+      }
     } else {
       // Not signed in — switch to auth screen
+      // After sign-in, app-state will detect localStorage data and auto-save
       setScreen("auth");
     }
   };
-
-  // Save onboarding data to DB
-  const saveOnboardingToDb = async (data: OnboardingResult) => {
-    try {
-      const res = await fetch("/api/users/me", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          birthCountry: data.birthCountry,
-          grewUp: data.grewUp,
-          recentMigrations: data.recentMigrations,
-          futurePlans: data.futurePlans,
-          currentLocation: data.currentLocation,
-          flexibility: data.flexibility,
-          lookingFor: data.lookingFor,
-        }),
-      });
-      const result = await res.json();
-      if (result.user) {
-        setDbUser(result.user);
-        localStorage.removeItem(ONBOARDING_KEY);
-        setScreen("discover");
-      }
-    } catch (err) {
-      console.error("Failed to save onboarding:", err);
-    }
-  };
-
-  // After sign-in, check for pending onboarding data
-  const handlePostAuth = async () => {
-    const stored = localStorage.getItem(ONBOARDING_KEY);
-    if (stored) {
-      const data = JSON.parse(stored) as OnboardingResult;
-      await saveOnboardingToDb(data);
-    } else {
-      setScreen("discover");
-    }
-  };
-
-  // Watch for auth state change when on auth screen
-  if (screen === "auth" && clerkLoaded && isSignedIn) {
-    handlePostAuth();
-  }
 
   // Conservation contribution handler
   const handleContribute = async (amount: number) => {
