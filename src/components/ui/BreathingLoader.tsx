@@ -9,7 +9,7 @@ export default function BreathingLoader() {
         className="text-4xl"
         animate={{
           scale: [1, 1.15, 1],
-          opacity: [0.5, 1, 0.5],
+          opacity: [0.4, 1, 0.4],
         }}
         transition={{
           duration: 2,
@@ -19,7 +19,7 @@ export default function BreathingLoader() {
       >
         🕊️
       </motion.div>
-      <p className="text-sm text-[#e8ddd1]/40 tracking-wider">Loading...</p>
+      <p className="text-sm text-[#999] tracking-wider">Loading...</p>
     </div>
   );
 }

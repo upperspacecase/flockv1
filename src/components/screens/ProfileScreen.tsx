@@ -40,8 +40,8 @@ export default function ProfileScreen({ user, onBack, onUpdate }: ProfileScreenP
   ];
 
   const originLine = `Born in ${user.birthCountry.country}${user.grewUp.length > 0
-      ? `, raised between ${user.grewUp.map((s) => s.country).join(" and ")}`
-      : ""
+    ? `, raised between ${user.grewUp.map((s) => s.country).join(" and ")}`
+    : ""
     }`;
 
   const futureLine =
@@ -155,7 +155,7 @@ export default function ProfileScreen({ user, onBack, onUpdate }: ProfileScreenP
           {editing ? (
             <div className="space-y-2">
               <label className="text-xs text-muted-foreground">Flexibility</label>
-              <div className="flex items-center justify-between text-[#e8ddd1]/60 text-xs tracking-wide">
+              <div className="flex items-center justify-between text-[#888] text-xs tracking-wide">
                 <span>Rooted</span>
                 <span>Wind-blown</span>
               </div>
@@ -166,7 +166,7 @@ export default function ProfileScreen({ user, onBack, onUpdate }: ProfileScreenP
                 step={0.01}
                 value={flexibility}
                 onChange={(e) => setFlexibility(parseFloat(e.target.value))}
-                className="w-full accent-[#c8854c] h-1.5 cursor-pointer"
+                className="w-full accent-[#1a1a1a] h-1.5 cursor-pointer"
               />
             </div>
           ) : (

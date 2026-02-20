@@ -18,25 +18,16 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
   }, []);
 
   return (
-    <div className="h-screen-safe relative overflow-hidden flex flex-col items-center justify-center bg-[#1a1410]">
+    <div className="h-screen-safe relative overflow-hidden flex flex-col items-center justify-center bg-[#fefefe]">
       {/* Animated migration lines background */}
-      <MigrationLines count={16} className="opacity-60" />
-
-      {/* Soft radial glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 50%, rgba(200, 133, 76, 0.12) 0%, transparent 70%)",
-        }}
-      />
+      <MigrationLines count={16} className="opacity-20" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center px-8 text-center">
         {/* App name */}
         <motion.h1
-          className="text-4xl md:text-5xl font-[var(--font-cormorant)] font-light tracking-wide text-[#faf6f1]"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
+          className="text-4xl md:text-5xl font-light tracking-wide text-[#1a1a1a]"
+          style={{ fontFamily: "Georgia, Cambria, serif" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
@@ -46,8 +37,8 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
 
         {/* Tagline */}
         <motion.p
-          className="mt-4 text-lg text-[#e8ddd1]/70 tracking-wide"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
+          className="mt-4 text-lg text-[#666] tracking-wide"
+          style={{ fontFamily: "Georgia, Cambria, serif" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 1.2 }}
@@ -60,7 +51,7 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
           {showCTA && (
             <motion.button
               onClick={onContinue}
-              className="mt-12 px-8 py-3 rounded-full border border-[#e8ddd1]/20 text-[#e8ddd1] text-sm tracking-widest uppercase hover:bg-[#e8ddd1]/10 transition-colors cursor-pointer"
+              className="mt-12 px-8 py-3 rounded-full border border-[#1a1a1a] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -80,14 +71,11 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
         transition={{ delay: 2, duration: 1 }}
       >
         <SignInButton>
-          <button className="text-[#e8ddd1]/30 text-xs tracking-widest uppercase hover:text-[#e8ddd1]/60 transition-colors cursor-pointer">
+          <button className="text-[#999] text-xs tracking-widest uppercase hover:text-[#1a1a1a] transition-colors cursor-pointer">
             Login
           </button>
         </SignInButton>
       </motion.div>
-
-      {/* Bottom subtle gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#1a1410] to-transparent pointer-events-none" />
     </div>
   );
 }

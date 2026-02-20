@@ -32,7 +32,7 @@ export default function MatchScreen({
   const stopsB = getAllStops(otherUser);
 
   return (
-    <div className="h-screen-safe overflow-y-auto bg-[#1a1410] text-[#faf6f1] relative">
+    <div className="h-screen-safe overflow-y-auto bg-[#fefefe] text-[#1a1a1a] relative">
       {/* Bird celebration animation */}
       <BirdCelebration />
 
@@ -55,7 +55,7 @@ export default function MatchScreen({
         {/* Match message */}
         <motion.h2
           className="text-3xl font-light mt-8 text-center"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
+          style={{ fontFamily: "Georgia, Cambria, serif" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.8 }}
@@ -64,7 +64,7 @@ export default function MatchScreen({
         </motion.h2>
 
         <motion.p
-          className="text-sm text-[#e8ddd1]/50 mt-2 text-center"
+          className="text-sm text-[#888] mt-2 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
@@ -74,7 +74,7 @@ export default function MatchScreen({
 
         {/* Conservation invitation */}
         <motion.div
-          className="w-full max-w-sm mt-10 p-5 rounded-2xl bg-[#e8ddd1]/5 border border-[#e8ddd1]/10"
+          className="w-full max-w-sm mt-10 p-5 rounded-2xl bg-[#f8f8f8] border border-[#e0e0e0]"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -85,13 +85,11 @@ export default function MatchScreen({
         >
           <p
             className="text-lg font-light mb-3"
-            style={{
-              fontFamily: "var(--font-cormorant), Georgia, serif",
-            }}
+            style={{ fontFamily: "Georgia, Cambria, serif" }}
           >
             {match.species.name} {match.species.imageEmoji}
           </p>
-          <p className="text-sm text-[#e8ddd1]/60 leading-relaxed mb-5">
+          <p className="text-sm text-[#888] leading-relaxed mb-5">
             Would you like to support their journey together?
           </p>
 
@@ -100,7 +98,7 @@ export default function MatchScreen({
               <button
                 key={amount}
                 onClick={() => onSupportTogether(amount)}
-                className="flex-1 py-2.5 rounded-xl bg-[#c8854c]/20 border border-[#c8854c]/30 text-[#faf6f1] text-sm hover:bg-[#c8854c]/30 transition-colors cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl border border-[#1a1a1a] text-[#1a1a1a] text-sm hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer"
               >
                 ${amount}
               </button>
@@ -109,7 +107,7 @@ export default function MatchScreen({
 
           <button
             onClick={onJustSayHello}
-            className="w-full text-center text-sm text-[#e8ddd1]/40 hover:text-[#e8ddd1]/60 transition-colors cursor-pointer py-2"
+            className="w-full text-center text-sm text-[#999] hover:text-[#1a1a1a] transition-colors cursor-pointer py-2"
           >
             Not now — just say hello
           </button>

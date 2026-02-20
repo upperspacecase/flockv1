@@ -91,7 +91,7 @@ export default function BirdCelebration() {
                     }}
                     initial={{ opacity: 0, scale: 0, rotate: 0 }}
                     animate={{
-                        opacity: [0, 0.7, 0.5, 0],
+                        opacity: [0, 0.5, 0.3, 0],
                         scale: [0, f.scale, f.scale * 0.8, 0],
                         rotate: [0, f.rotate, f.rotate + 180],
                         y: [0, 60, 120],
@@ -106,16 +106,16 @@ export default function BirdCelebration() {
                 </motion.div>
             ))}
 
-            {/* Central burst glow */}
+            {/* Central burst — subtle on white */}
             <motion.div
                 className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full"
                 style={{
                     background:
-                        "radial-gradient(circle, rgba(200,133,76,0.3) 0%, rgba(200,133,76,0) 70%)",
+                        "radial-gradient(circle, rgba(0,0,0,0.04) 0%, transparent 70%)",
                 }}
                 initial={{ opacity: 0, scale: 0.3 }}
                 animate={{
-                    opacity: [0, 0.8, 0.4, 0],
+                    opacity: [0, 0.6, 0.3, 0],
                     scale: [0.3, 1.5, 2, 2.5],
                 }}
                 transition={{ duration: 2.5, ease: "easeOut" }}

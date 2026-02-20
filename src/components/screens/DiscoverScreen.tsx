@@ -23,6 +23,7 @@ interface DiscoverScreenProps {
   onOpenMessages: () => void;
   onOpenConservation: () => void;
   onRefreshProfiles: () => Promise<void>;
+  hasNewActivity?: boolean;
 }
 
 function findOverlaps(a: MigrationStop[], b: MigrationStop[]): MigrationStop[] {
@@ -73,8 +74,8 @@ function SwipeCard({
   const overlaps = currentUser ? findOverlaps(userStops, profileStops) : [];
 
   const originLine = `Born in ${profile.birthCountry.country}${profile.grewUp.length > 0
-      ? `, raised between ${profile.grewUp.map((s) => s.country).join(" and ")}`
-      : ""
+    ? `, raised between ${profile.grewUp.map((s) => s.country).join(" and ")}`
+    : ""
     }`;
 
   const futureLine =
@@ -210,6 +211,7 @@ export default function DiscoverScreen({
   onOpenMessages,
   onOpenConservation,
   onRefreshProfiles,
+  hasNewActivity,
 }: DiscoverScreenProps) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [liking, setLiking] = useState(false);
@@ -270,10 +272,13 @@ export default function DiscoverScreen({
           </button>
           <button
             onClick={onOpenMessages}
-            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
+            className="relative w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
             title="Messages"
           >
             💬
+            {hasNewActivity && (
+              <span className="absolute -top-1 -right-1 text-[10px] leading-none">🍃</span>
+            )}
           </button>
         </div>
       </div>

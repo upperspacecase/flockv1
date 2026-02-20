@@ -76,6 +76,8 @@ interface AppState {
   currentMatchView: AppMatch | null;
   setCurrentMatchView: (match: AppMatch | null) => void;
   loading: boolean;
+  hasNewActivity: boolean;
+  markActivitySeen: () => void;
   refreshMatches: () => Promise<void>;
   refreshProfiles: () => Promise<void>;
 }
@@ -187,6 +189,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [screen, dbUser, refreshProfiles, refreshMatches]);
 
   // Skip splash for signed-in onboarded users
+  // Track new activity (new matches/messages)
+  const lastSeenMatchCount = typeof window !== "undefined"
+    ? parseInt(localStorage.getItem("flock_seen_matches") || "0")
+    : 0;
+  const hasNewActivity = matches.length > lastSeenMatchCount;
+
+  const markActivitySeen = useCallback(() => {
+    localStorage.setItem("flock_seen_matches", String(matches.length));
+  }, [matches.length]);
+
   useEffect(() => {
     if (initialized && !loading && screen === "splash" && isSignedIn && dbUser?.hasOnboarded) {
       setScreen("discover");
@@ -207,6 +219,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         currentMatchView,
         setCurrentMatchView,
         loading,
+        hasNewActivity,
+        markActivitySeen,
         refreshMatches,
         refreshProfiles,
       }}

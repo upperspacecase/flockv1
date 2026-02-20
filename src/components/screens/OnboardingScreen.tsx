@@ -25,14 +25,13 @@ function countryToStop(c: Country): MigrationStop {
 }
 
 const bgColors = [
-  "from-[#2d2118] to-[#1a1410]",
-  "from-[#1a2418] to-[#1a1410]",
-  "from-[#1a1824] to-[#1a1410]",
-  "from-[#241a18] to-[#1a1410]",
-  "from-[#1a2420] to-[#1a1410]",
-  "from-[#20181a] to-[#1a1410]",
-  "from-[#1a2018] to-[#1a1410]",
-  "from-[#221a1e] to-[#1a1410]",
+  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#fefefe] to-[#f5f5f5]",
 ];
 
 const stepVariants = {
@@ -236,14 +235,14 @@ export default function OnboardingScreen({
           >
             {/* Question */}
             <h2
-              className="text-3xl font-light text-[#faf6f1] mb-2"
+              className="text-3xl font-light text-[#1a1a1a] mb-2"
               style={{
-                fontFamily: "var(--font-cormorant), Georgia, serif",
+                fontFamily: "Georgia, Cambria, serif",
               }}
             >
               {questions[step]}
             </h2>
-            <p className="text-sm text-[#e8ddd1]/50 mb-8">
+            <p className="text-sm text-[#888] mb-8">
               {subtitles[step]}
             </p>
 
@@ -255,7 +254,7 @@ export default function OnboardingScreen({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for a country..."
-                  className="w-full px-4 py-3 bg-[#e8ddd1]/10 border border-[#e8ddd1]/15 rounded-xl text-[#faf6f1] placeholder:text-[#e8ddd1]/30 focus:outline-none focus:border-[#c8854c]/40 transition-colors"
+                  className="w-full px-4 py-3 bg-[#f8f8f8] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] placeholder:text-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                 />
 
                 {/* Search results */}
@@ -265,7 +264,7 @@ export default function OnboardingScreen({
                       <button
                         key={c.code}
                         onClick={() => handleCountrySelect(c)}
-                        className="w-full text-left px-4 py-2.5 rounded-lg bg-[#e8ddd1]/5 hover:bg-[#e8ddd1]/10 text-[#faf6f1] text-sm transition-colors cursor-pointer"
+                        className="w-full text-left px-4 py-2.5 rounded-lg bg-[#f5f5f5] hover:bg-[#eee] text-[#1a1a1a] text-sm transition-colors cursor-pointer"
                       >
                         {c.name}
                       </button>
@@ -279,13 +278,13 @@ export default function OnboardingScreen({
                     {selectedForStep.map((c) => (
                       <span
                         key={c.code}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#c8854c]/20 border border-[#c8854c]/30 text-[#faf6f1] text-sm"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f0f0f0] border border-[#ddd] text-[#1a1a1a] text-sm"
                       >
                         {c.name}
                         {(step === 1 || step === 2 || step === 4) && (
                           <button
                             onClick={() => removeCountry(c.code)}
-                            className="hover:text-[#e07a5f] transition-colors cursor-pointer"
+                            className="hover:text-[#999] transition-colors cursor-pointer"
                           >
                             ×
                           </button>
@@ -300,7 +299,7 @@ export default function OnboardingScreen({
             {/* Flexibility slider (step 7) */}
             {step === 5 && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between text-[#e8ddd1]/60 text-xs tracking-wide">
+                <div className="flex items-center justify-between text-[#888] text-xs tracking-wide">
                   <span>Rooted</span>
                   <span>Wind-blown</span>
                 </div>
@@ -313,9 +312,9 @@ export default function OnboardingScreen({
                   onChange={(e) =>
                     setFlexibility(parseFloat(e.target.value))
                   }
-                  className="w-full accent-[#c8854c] h-1.5 cursor-pointer"
+                  className="w-full accent-[#1a1a1a] h-1.5 cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, var(--migration-start) ${flexibility * 100}%, rgba(232,221,209,0.15) ${flexibility * 100}%)`,
+                    background: `linear-gradient(to right, #1a1a1a ${flexibility * 100}%, #e0e0e0 ${flexibility * 100}%)`,
                   }}
                 />
                 <div className="flex justify-center">
@@ -367,17 +366,17 @@ export default function OnboardingScreen({
                     key={opt.value}
                     onClick={() => setLookingFor(opt.value)}
                     className={`w-full text-left px-5 py-4 rounded-xl border transition-all cursor-pointer ${lookingFor === opt.value
-                      ? "bg-[#c8854c]/20 border-[#c8854c]/40"
-                      : "bg-[#e8ddd1]/5 border-[#e8ddd1]/10 hover:bg-[#e8ddd1]/10"
+                      ? "bg-[#f0f0f0] border-[#1a1a1a]"
+                      : "bg-white border-[#e0e0e0] hover:bg-[#f8f8f8]"
                       }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{opt.icon}</span>
                       <div>
-                        <p className="text-[#faf6f1] text-sm font-medium">
+                        <p className="text-[#1a1a1a] text-sm font-medium">
                           {opt.label}
                         </p>
-                        <p className="text-[#e8ddd1]/40 text-xs mt-0.5">
+                        <p className="text-[#888] text-xs mt-0.5">
                           {opt.desc}
                         </p>
                       </div>
@@ -399,7 +398,7 @@ export default function OnboardingScreen({
                 setStep(step - 1);
                 setSearchQuery("");
               }}
-              className="text-[#e8ddd1]/40 text-sm hover:text-[#e8ddd1]/60 transition-colors cursor-pointer"
+              className="text-[#999] text-sm hover:text-[#1a1a1a] transition-colors cursor-pointer"
             >
               Back
             </button>
@@ -410,9 +409,9 @@ export default function OnboardingScreen({
           <button
             onClick={handleNext}
             disabled={!canAdvance()}
-            className={`px-8 py-3 rounded-full text-sm tracking-wide transition-all cursor-pointer ${canAdvance()
-              ? "bg-[#c8854c] text-[#faf6f1] hover:bg-[#b5763f]"
-              : "bg-[#e8ddd1]/10 text-[#e8ddd1]/20 cursor-not-allowed"
+            className={`px-8 py-3 rounded-full text-sm tracking-widest uppercase transition-all cursor-pointer ${canAdvance()
+              ? "bg-[#1a1a1a] text-white hover:bg-[#333]"
+              : "bg-[#f0f0f0] text-[#ccc] cursor-not-allowed"
               }`}
           >
             {step === totalSteps - 1 ? "Find my flock" : "Continue"}
@@ -425,10 +424,10 @@ export default function OnboardingScreen({
             <div
               key={i}
               className={`h-1 rounded-full transition-all duration-500 ${i === step
-                ? "w-6 bg-[#c8854c]"
+                ? "w-6 bg-[#1a1a1a]"
                 : i < step
-                  ? "w-1.5 bg-[#c8854c]/40"
-                  : "w-1.5 bg-[#e8ddd1]/15"
+                  ? "w-1.5 bg-[#1a1a1a]/40"
+                  : "w-1.5 bg-[#ddd]"
                 }`}
             />
           ))}

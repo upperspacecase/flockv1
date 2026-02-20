@@ -27,6 +27,8 @@ function AppContent() {
     currentMatchView,
     setCurrentMatchView,
     loading,
+    hasNewActivity,
+    markActivitySeen,
     refreshMatches,
     refreshProfiles,
   } = useApp();
@@ -85,7 +87,7 @@ function AppContent() {
   // Loading state
   if (loading && screen !== "splash" && screen !== "onboarding") {
     return (
-      <div className="max-w-md mx-auto h-screen-safe flex items-center justify-center bg-[#1a1410]">
+      <div className="max-w-md mx-auto h-screen-safe flex items-center justify-center bg-[#fefefe]">
         <BreathingLoader />
       </div>
     );
@@ -129,34 +131,27 @@ function AppContent() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="h-screen-safe flex flex-col items-center justify-center bg-[#1a1410] relative overflow-hidden">
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at 50% 40%, rgba(200, 133, 76, 0.08) 0%, transparent 70%)",
-                }}
-              />
+            <div className="h-screen-safe flex flex-col items-center justify-center bg-[#fefefe] relative overflow-hidden">
               <div className="relative z-10 flex flex-col items-center px-8 text-center max-w-sm">
                 <h2
-                  className="text-3xl font-light tracking-wide text-[#faf6f1] mb-3"
+                  className="text-3xl font-light tracking-wide text-[#1a1a1a] mb-3"
                   style={{
-                    fontFamily: "Georgia, Cambria, 'Times New Roman', serif",
+                    fontFamily: "Georgia, Cambria, serif",
                   }}
                 >
                   Your map is ready.
                 </h2>
-                <p className="text-sm text-[#e8ddd1]/60 mb-10 leading-relaxed">
+                <p className="text-sm text-[#888] mb-10 leading-relaxed">
                   Sign in to save your migration and find your flock.
                 </p>
                 <div className="flex flex-col gap-3 w-full">
                   <SignUpButton>
-                    <button className="w-full px-8 py-3.5 rounded-full bg-[#c8854c] text-[#faf6f1] text-sm tracking-widest uppercase hover:bg-[#b5763f] transition-all cursor-pointer shadow-lg shadow-[#c8854c]/20">
+                    <button className="w-full px-8 py-3.5 rounded-full bg-[#1a1a1a] text-white text-sm tracking-widest uppercase hover:bg-[#333] transition-all cursor-pointer">
                       Create Account
                     </button>
                   </SignUpButton>
                   <SignInButton>
-                    <button className="w-full px-8 py-3.5 rounded-full border border-[#e8ddd1]/20 text-[#e8ddd1] text-sm tracking-widest uppercase hover:bg-[#e8ddd1]/5 transition-all cursor-pointer">
+                    <button className="w-full px-8 py-3.5 rounded-full border border-[#1a1a1a] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-all cursor-pointer">
                       Sign In
                     </button>
                   </SignInButton>
@@ -179,13 +174,17 @@ function AppContent() {
               profiles={profiles}
               currentUser={dbUser}
               onOpenProfile={() => setScreen("profile")}
-              onOpenMessages={() => setScreen("messages")}
+              onOpenMessages={() => {
+                markActivitySeen();
+                setScreen("messages");
+              }}
               onOpenConservation={() => setScreen("conservation")}
               onMatch={(match) => {
                 setCurrentMatchView(match);
                 setScreen("match");
               }}
               onRefreshProfiles={refreshProfiles}
+              hasNewActivity={hasNewActivity}
             />
           </motion.div>
         )}
