@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 
@@ -36,6 +36,18 @@ export async function PUT(request: Request) {
 
         const body = await request.json();
         await dbConnect();
+
+        // Auto-populate name from Clerk if not provided
+        if (!body.name) {
+            const client = await clerkClient();
+            const clerkUser = await client.users.getUser(userId);
+            const fullName = [clerkUser.firstName, clerkUser.lastName]
+                .filter(Boolean)
+                .join(" ");
+            if (fullName) {
+                body.name = fullName;
+            }
+        }
 
         const user = await User.findOneAndUpdate(
             { clerkId: userId },

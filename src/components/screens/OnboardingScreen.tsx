@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo, useCallback } from "react";
 import { countries, type Country } from "@/data/countries";
 import MigrationMap from "@/components/maps/MigrationMap";
-import type { MigrationStop } from "@/data/mock-profiles";
+import type { MigrationStop } from "@/lib/app-state";
 
 interface OnboardingScreenProps {
   onComplete: (data: OnboardingResult) => void;

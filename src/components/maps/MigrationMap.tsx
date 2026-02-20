@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { MigrationStop } from "@/data/mock-profiles";
+import type { MigrationStop } from "@/lib/app-state";
 
 interface MigrationMapProps {
   stops: MigrationStop[];
@@ -65,14 +65,14 @@ export default function MigrationMap({
   const futurePoints =
     futureStops.length > 0
       ? [
-          geoToSvg(
-            stops[stops.length - 1].lat,
-            stops[stops.length - 1].lng,
-            width,
-            height
-          ),
-          ...futureStops.map((s) => geoToSvg(s.lat, s.lng, width, height)),
-        ]
+        geoToSvg(
+          stops[stops.length - 1].lat,
+          stops[stops.length - 1].lng,
+          width,
+          height
+        ),
+        ...futureStops.map((s) => geoToSvg(s.lat, s.lng, width, height)),
+      ]
       : [];
 
   const overlapSet = new Set(overlappingStops.map((s) => s.country));

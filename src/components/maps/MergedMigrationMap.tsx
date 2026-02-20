@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { MigrationStop } from "@/data/mock-profiles";
+import type { MigrationStop } from "@/lib/app-state";
 
 interface MergedMigrationMapProps {
   stopsA: MigrationStop[];

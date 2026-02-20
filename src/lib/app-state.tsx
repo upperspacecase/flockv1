@@ -102,6 +102,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     async function checkUser() {
       if (!isSignedIn) {
+        // Reset state on sign-out
+        setDbUser(null);
+        setProfiles([]);
+        setMatches([]);
+        setCurrentMatchView(null);
+        if (initialized) setScreen("splash");
         setLoading(false);
         setInitialized(true);
         return;
