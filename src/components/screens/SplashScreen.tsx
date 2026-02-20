@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { SignInButton } from "@clerk/nextjs";
 import MigrationLines from "@/components/ui/MigrationLines";
 
 interface SplashScreenProps {
@@ -70,6 +71,20 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Login for returning users */}
+      <motion.div
+        className="absolute bottom-10 z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2, duration: 1 }}
+      >
+        <SignInButton>
+          <button className="text-[#e8ddd1]/30 text-xs tracking-widest uppercase hover:text-[#e8ddd1]/60 transition-colors cursor-pointer">
+            Login
+          </button>
+        </SignInButton>
+      </motion.div>
 
       {/* Bottom subtle gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#1a1410] to-transparent pointer-events-none" />
