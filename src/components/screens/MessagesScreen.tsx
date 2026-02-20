@@ -1,61 +1,85 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import MergedMigrationMap from "@/components/maps/MergedMigrationMap";
-import type { Match } from "@/lib/app-state";
-import type { UserProfile, MigrationStop } from "@/data/mock-profiles";
+import { useApp, type AppMatch, type MigrationStop } from "@/lib/app-state";
 
 interface MessagesScreenProps {
-  matches: Match[];
-  currentUser: UserProfile;
   onBack: () => void;
 }
 
-interface ChatScreenProps {
-  match: Match;
-  currentUser: UserProfile;
-  onBack: () => void;
+interface ChatMessage {
+  _id: string;
+  text: string;
+  senderId: string;
+  fromSelf: boolean;
+  createdAt: string;
 }
 
-function getAllStops(user: UserProfile): MigrationStop[] {
+function getAllStops(user: { birthCountry: MigrationStop; grewUp: MigrationStop[]; recentMigrations: MigrationStop[]; futurePlans: MigrationStop[] }): MigrationStop[] {
   return [user.birthCountry, ...user.grewUp, ...user.recentMigrations, ...user.futurePlans];
 }
 
-function findOverlapHint(a: UserProfile, b: UserProfile): string | null {
-  const futureA = new Set(a.futurePlans.map((s) => s.country));
-  const futureB = b.futurePlans.map((s) => s.country);
-  const shared = futureB.filter((c) => futureA.has(c));
-  if (shared.length > 0) {
-    return `You'll both be heading to ${shared[0]}. That could be interesting.`;
-  }
-  const recentA = new Set(a.recentMigrations.map((s) => s.country));
-  const recentB = b.recentMigrations.map((s) => s.country);
-  const sharedRecent = recentB.filter((c) => recentA.has(c));
-  if (sharedRecent.length > 0) {
-    return `You've both spent time in ${sharedRecent[0]}. Plenty to talk about.`;
-  }
-  return null;
-}
-
-function ChatScreen({ match, currentUser, onBack }: ChatScreenProps) {
-  const [messages, setMessages] = useState<{ text: string; fromSelf: boolean }[]>([]);
+function ChatScreen({ match, onBack }: { match: AppMatch; onBack: () => void }) {
+  const { dbUser } = useApp();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const otherUser = match.otherUser || match.userB;
 
-  const hint = findOverlapHint(currentUser, match.user);
+  const loadMessages = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/messages?matchId=${match._id}`);
+      const data = await res.json();
+      if (data.messages) {
+        setMessages(data.messages);
+      }
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+    }
+  }, [match._id]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages((prev) => [...prev, { text: input.trim(), fromSelf: true }]);
-    setInput("");
+  // Initial load + polling
+  useEffect(() => {
+    loadMessages();
+    const interval = setInterval(loadMessages, 3000);
+    return () => clearInterval(interval);
+  }, [loadMessages]);
+
+  // Auto-scroll on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || sending) return;
+    setSending(true);
+
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matchId: match._id, text: input.trim() }),
+      });
+      const data = await res.json();
+      if (data.message) {
+        setMessages((prev) => [...prev, data.message]);
+        setInput("");
+      }
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    } finally {
+      setSending(false);
+    }
   };
 
-  const stopsA = getAllStops(currentUser);
-  const stopsB = getAllStops(match.user);
+  const stopsA = dbUser ? getAllStops(dbUser) : [];
+  const stopsB = getAllStops(otherUser);
 
   return (
     <div className="h-screen-safe flex flex-col bg-background">
-      {/* Header with merged map */}
       <div className="border-b border-border/40">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
@@ -65,18 +89,17 @@ function ChatScreen({ match, currentUser, onBack }: ChatScreenProps) {
             ←
           </button>
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">
-            {match.user.name[0]}
+            {otherUser.name[0]}
           </div>
-          <span className="text-sm font-medium">{match.user.name}</span>
+          <span className="text-sm font-medium">{otherUser.name}</span>
         </div>
         <div className="px-4 pb-3 opacity-40">
           <MergedMigrationMap stopsA={stopsA} stopsB={stopsB} width={300} height={60} />
         </div>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.length === 0 && hint && (
+        {messages.length === 0 && (
           <motion.div
             className="text-center py-8"
             initial={{ opacity: 0, y: 10 }}
@@ -84,35 +107,34 @@ function ChatScreen({ match, currentUser, onBack }: ChatScreenProps) {
             transition={{ delay: 0.5 }}
           >
             <p className="text-sm text-muted-foreground/60 italic leading-relaxed max-w-[260px] mx-auto">
-              {hint}
+              You matched with {otherUser.name}. Say something!
             </p>
           </motion.div>
         )}
 
         <AnimatePresence>
-          {messages.map((msg, i) => (
+          {messages.map((msg) => (
             <motion.div
-              key={i}
+              key={msg._id}
               className={`flex ${msg.fromSelf ? "justify-end" : "justify-start"}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
               <div
-                className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                  msg.fromSelf
+                className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.fromSelf
                     ? "bg-accent text-accent-foreground rounded-br-md"
                     : "bg-muted text-foreground rounded-bl-md"
-                }`}
+                  }`}
               >
                 {msg.text}
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="p-4 border-t border-border/40">
         <div className="flex gap-2">
           <input
@@ -125,12 +147,11 @@ function ChatScreen({ match, currentUser, onBack }: ChatScreenProps) {
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim()}
-            className={`px-4 py-2.5 rounded-full text-sm transition-colors cursor-pointer ${
-              input.trim()
+            disabled={!input.trim() || sending}
+            className={`px-4 py-2.5 rounded-full text-sm transition-colors cursor-pointer ${input.trim() && !sending
                 ? "bg-accent text-accent-foreground"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
-            }`}
+              }`}
           >
             Send
           </button>
@@ -140,26 +161,20 @@ function ChatScreen({ match, currentUser, onBack }: ChatScreenProps) {
   );
 }
 
-export default function MessagesScreen({
-  matches,
-  currentUser,
-  onBack,
-}: MessagesScreenProps) {
-  const [activeChat, setActiveChat] = useState<Match | null>(null);
+export default function MessagesScreen({ onBack }: MessagesScreenProps) {
+  const { matches, refreshMatches } = useApp();
+  const [activeChat, setActiveChat] = useState<AppMatch | null>(null);
+
+  useEffect(() => {
+    refreshMatches();
+  }, [refreshMatches]);
 
   if (activeChat) {
-    return (
-      <ChatScreen
-        match={activeChat}
-        currentUser={currentUser}
-        onBack={() => setActiveChat(null)}
-      />
-    );
+    return <ChatScreen match={activeChat} onBack={() => setActiveChat(null)} />;
   }
 
   return (
     <div className="h-screen-safe flex flex-col bg-background">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
         <button
           onClick={onBack}
@@ -176,7 +191,6 @@ export default function MessagesScreen({
         <div className="w-12" />
       </div>
 
-      {/* Match list */}
       <div className="flex-1 overflow-y-auto">
         {matches.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-8 text-center">
@@ -192,32 +206,35 @@ export default function MessagesScreen({
           </div>
         ) : (
           <div className="divide-y divide-border/30">
-            {matches.map((match) => (
-              <motion.button
-                key={match.user.id}
-                onClick={() => setActiveChat(match)}
-                className="w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/30 transition-colors text-left cursor-pointer"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <div className="w-12 h-12 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
-                  <span className="text-lg">{match.user.name[0]}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{match.user.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {match.user.currentLocation.country} · {match.species.name}{" "}
-                    {match.species.imageEmoji}
-                  </p>
-                </div>
-                <span className="text-xs text-muted-foreground/40">
-                  {new Date(match.matchedAt).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </motion.button>
-            ))}
+            {matches.map((match) => {
+              const otherUser = match.otherUser || match.userB;
+              return (
+                <motion.button
+                  key={match._id}
+                  onClick={() => setActiveChat(match)}
+                  className="w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/30 transition-colors text-left cursor-pointer"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  <div className="w-12 h-12 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
+                    <span className="text-lg">{otherUser.name[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{otherUser.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {otherUser.currentLocation?.country} · {match.species.name}{" "}
+                      {match.species.imageEmoji}
+                    </p>
+                  </div>
+                  <span className="text-xs text-muted-foreground/40">
+                    {new Date(match.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
         )}
       </div>

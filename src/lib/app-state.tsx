@@ -1,143 +1,190 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
-import { UserProfile, currentUser, mockProfiles } from "@/data/mock-profiles";
-import { MigratorySpecies, migratorySpecies } from "@/data/species";
-import type { MigrationStop } from "@/data/mock-profiles";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import { useUser } from "@clerk/nextjs";
+
+// ─── Types ───────────────────────────────────────────────
+
+export interface MigrationStop {
+  country: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+  year?: number;
+  season?: string;
+}
+
+export interface AppUser {
+  _id: string;
+  clerkId: string;
+  name: string;
+  age: number;
+  photo: string;
+  bio?: string;
+  birthCountry: MigrationStop;
+  grewUp: MigrationStop[];
+  recentMigrations: MigrationStop[];
+  futurePlans: MigrationStop[];
+  currentLocation: MigrationStop;
+  flexibility: number;
+  lookingFor: "romantic" | "friends" | "both";
+  hasOnboarded: boolean;
+}
+
+export interface AppMatch {
+  _id: string;
+  userA: AppUser;
+  userB: AppUser;
+  otherUser: AppUser;
+  species: {
+    id: string;
+    name: string;
+    imageEmoji: string;
+  };
+  compatibilityScore: number;
+  contributedAmount: number;
+  createdAt: string;
+}
 
 export type AppScreen =
   | "splash"
   | "onboarding"
+  | "auth"
   | "discover"
   | "profile"
   | "messages"
   | "conservation"
   | "match";
 
-export interface Match {
-  user: UserProfile;
-  species: MigratorySpecies;
-  contributedAmount?: number;
-  matchedAt: string;
-}
-
-export interface OnboardingData {
-  birthCountry?: MigrationStop;
-  grewUp: MigrationStop[];
-  recentMigrations: MigrationStop[];
-  futurePlans: MigrationStop[];
-  flexibility: number;
-  lookingFor: "romantic" | "friends" | "both";
-}
+// ─── Context ─────────────────────────────────────────────
 
 interface AppState {
   screen: AppScreen;
   setScreen: (screen: AppScreen) => void;
-  user: UserProfile;
-  setUser: (user: UserProfile) => void;
-  profiles: UserProfile[];
-  matches: Match[];
-  addMatch: (profile: UserProfile) => void;
-  contributeToMatch: (matchUserId: string, amount: number) => void;
-  currentMatchView: Match | null;
-  setCurrentMatchView: (match: Match | null) => void;
-  onboardingData: OnboardingData;
-  setOnboardingData: (data: OnboardingData) => void;
-  hasOnboarded: boolean;
-  setHasOnboarded: (val: boolean) => void;
-  currentChatMatch: Match | null;
-  setCurrentChatMatch: (match: Match | null) => void;
+  dbUser: AppUser | null;
+  setDbUser: (user: AppUser | null) => void;
+  profiles: AppUser[];
+  setProfiles: (profiles: AppUser[]) => void;
+  matches: AppMatch[];
+  setMatches: (matches: AppMatch[]) => void;
+  currentMatchView: AppMatch | null;
+  setCurrentMatchView: (match: AppMatch | null) => void;
+  loading: boolean;
+  refreshMatches: () => Promise<void>;
+  refreshProfiles: () => Promise<void>;
 }
 
 const AppContext = createContext<AppState | null>(null);
 
-function pickSpeciesForMatch(profile: UserProfile): MigratorySpecies {
-  const allCountries = [
-    ...profile.recentMigrations.map((s) => s.country),
-    ...profile.futurePlans.map((s) => s.country),
-  ];
-
-  const hasAsia = allCountries.some((c) =>
-    ["Thailand", "Vietnam", "Indonesia", "Japan", "South Korea", "Malaysia", "Philippines", "Cambodia"].includes(c)
-  );
-  const hasEurope = allCountries.some((c) =>
-    ["Portugal", "Spain", "France", "Germany", "Netherlands", "United Kingdom", "Sweden", "Norway", "Italy"].includes(c)
-  );
-  const hasAfrica = allCountries.some((c) =>
-    ["Kenya", "Morocco", "South Africa", "Egypt"].includes(c)
-  );
-  const hasOceania = allCountries.some((c) =>
-    ["New Zealand", "Australia"].includes(c)
-  );
-
-  if (hasOceania) return migratorySpecies.find((s) => s.id === "bar-tailed-godwit")!;
-  if (hasAfrica) return migratorySpecies.find((s) => s.id === "wildebeest")!;
-  if (hasEurope) return migratorySpecies.find((s) => s.id === "european-turtle-dove")!;
-  if (hasAsia) return migratorySpecies.find((s) => s.id === "humpback-whale")!;
-  return migratorySpecies.find((s) => s.id === "monarch-butterfly")!;
-}
+// ─── Provider ────────────────────────────────────────────
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const { isSignedIn, isLoaded: clerkLoaded } = useUser();
   const [screen, setScreen] = useState<AppScreen>("splash");
-  const [user, setUser] = useState<UserProfile>(currentUser);
-  const [profiles] = useState<UserProfile[]>(mockProfiles);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [currentMatchView, setCurrentMatchView] = useState<Match | null>(null);
-  const [currentChatMatch, setCurrentChatMatch] = useState<Match | null>(null);
-  const [onboardingData, setOnboardingData] = useState<OnboardingData>({
-    grewUp: [],
-    recentMigrations: [],
-    futurePlans: [],
-    flexibility: 0.5,
-    lookingFor: "both",
-  });
-  const [hasOnboarded, setHasOnboarded] = useState(false);
-
-  const addMatch = useCallback(
-    (profile: UserProfile) => {
-      const species = pickSpeciesForMatch(profile);
-      const newMatch: Match = {
-        user: profile,
-        species,
-        matchedAt: new Date().toISOString(),
-      };
-      setMatches((prev) => [...prev, newMatch]);
-      setCurrentMatchView(newMatch);
-      setScreen("match");
-    },
-    []
+  const [dbUser, setDbUser] = useState<AppUser | null>(null);
+  const [profiles, setProfiles] = useState<AppUser[]>([]);
+  const [matches, setMatches] = useState<AppMatch[]>([]);
+  const [currentMatchView, setCurrentMatchView] = useState<AppMatch | null>(
+    null
   );
+  const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
-  const contributeToMatch = useCallback(
-    (matchUserId: string, amount: number) => {
-      setMatches((prev) =>
-        prev.map((m) =>
-          m.user.id === matchUserId ? { ...m, contributedAmount: amount } : m
-        )
-      );
-    },
-    []
-  );
+  // Load user from DB on auth status change
+  useEffect(() => {
+    if (!clerkLoaded) return;
+
+    async function checkUser() {
+      if (!isSignedIn) {
+        setLoading(false);
+        setInitialized(true);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/users/me");
+        const data = await res.json();
+
+        if (data.user && data.user.hasOnboarded) {
+          setDbUser(data.user);
+          setScreen("discover");
+        } else {
+          // Signed in but hasn't onboarded
+          setScreen("onboarding");
+        }
+      } catch (err) {
+        console.error("Failed to load user:", err);
+      } finally {
+        setLoading(false);
+        setInitialized(true);
+      }
+    }
+
+    checkUser();
+  }, [isSignedIn, clerkLoaded]);
+
+  // Load profiles once user is on discover
+  const refreshProfiles = useCallback(async () => {
+    try {
+      const res = await fetch("/api/users/discover");
+      const data = await res.json();
+      if (data.profiles) {
+        setProfiles(data.profiles);
+      }
+    } catch (err) {
+      console.error("Failed to load profiles:", err);
+    }
+  }, []);
+
+  // Load matches
+  const refreshMatches = useCallback(async () => {
+    try {
+      const res = await fetch("/api/matches");
+      const data = await res.json();
+      if (data.matches) {
+        setMatches(data.matches);
+      }
+    } catch (err) {
+      console.error("Failed to load matches:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (screen === "discover" && dbUser) {
+      refreshProfiles();
+      refreshMatches();
+    }
+  }, [screen, dbUser, refreshProfiles, refreshMatches]);
+
+  // Skip splash for signed-in onboarded users
+  useEffect(() => {
+    if (initialized && !loading && screen === "splash" && isSignedIn && dbUser?.hasOnboarded) {
+      setScreen("discover");
+    }
+  }, [initialized, loading, screen, isSignedIn, dbUser]);
 
   return (
     <AppContext.Provider
       value={{
         screen,
         setScreen,
-        user,
-        setUser,
+        dbUser,
+        setDbUser,
         profiles,
+        setProfiles,
         matches,
-        addMatch,
-        contributeToMatch,
+        setMatches,
         currentMatchView,
         setCurrentMatchView,
-        onboardingData,
-        setOnboardingData,
-        hasOnboarded,
-        setHasOnboarded,
-        currentChatMatch,
-        setCurrentChatMatch,
+        loading,
+        refreshMatches,
+        refreshProfiles,
       }}
     >
       {children}

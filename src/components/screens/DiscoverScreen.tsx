@@ -2,16 +2,27 @@
 
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { UserButton } from "@clerk/nextjs";
 import MigrationMap from "@/components/maps/MigrationMap";
-import type { UserProfile, MigrationStop } from "@/data/mock-profiles";
+import type { AppUser, AppMatch } from "@/lib/app-state";
+
+interface MigrationStop {
+  country: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+  year?: number;
+  season?: string;
+}
 
 interface DiscoverScreenProps {
-  profiles: UserProfile[];
-  currentUser: UserProfile;
-  onMatch: (profile: UserProfile) => void;
+  profiles: AppUser[];
+  currentUser: AppUser | null;
+  onMatch: (match: AppMatch) => void;
   onOpenProfile: () => void;
   onOpenMessages: () => void;
   onOpenConservation: () => void;
+  onRefreshProfiles: () => Promise<void>;
 }
 
 function findOverlaps(a: MigrationStop[], b: MigrationStop[]): MigrationStop[] {
@@ -32,8 +43,8 @@ function SwipeCard({
   onSwipeRight,
   isTop,
 }: {
-  profile: UserProfile;
-  currentUser: UserProfile;
+  profile: AppUser;
+  currentUser: AppUser | null;
   onSwipeLeft: () => void;
   onSwipeRight: () => void;
   isTop: boolean;
@@ -50,20 +61,21 @@ function SwipeCard({
     ...profile.recentMigrations,
   ];
 
-  const userStops = [
-    currentUser.birthCountry,
-    ...currentUser.grewUp,
-    ...currentUser.recentMigrations,
-    ...currentUser.futurePlans,
-  ];
+  const userStops = currentUser
+    ? [
+      currentUser.birthCountry,
+      ...currentUser.grewUp,
+      ...currentUser.recentMigrations,
+      ...currentUser.futurePlans,
+    ]
+    : [];
   const profileStops = [...allStops, ...profile.futurePlans];
-  const overlaps = findOverlaps(userStops, profileStops);
+  const overlaps = currentUser ? findOverlaps(userStops, profileStops) : [];
 
-  const originLine = `Born in ${profile.birthCountry.country}${
-    profile.grewUp.length > 0
+  const originLine = `Born in ${profile.birthCountry.country}${profile.grewUp.length > 0
       ? `, raised between ${profile.grewUp.map((s) => s.country).join(" and ")}`
       : ""
-  }`;
+    }`;
 
   const futureLine =
     profile.futurePlans.length > 0
@@ -113,7 +125,6 @@ function SwipeCard({
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
     >
       <div className="h-full overflow-y-auto">
-        {/* Migration map */}
         <div className="p-4 pb-2">
           <MigrationMap
             stops={allStops}
@@ -126,17 +137,14 @@ function SwipeCard({
           />
         </div>
 
-        {/* Overlap indicator */}
         <div className="px-5 pb-2">
           <p className="text-xs text-accent font-medium">
             {getOverlapPhrase(overlaps.length)}
           </p>
         </div>
 
-        {/* Profile info */}
         <div className="px-5 pb-6 space-y-3">
           <div className="flex items-center gap-3">
-            {/* Avatar */}
             <div className="w-12 h-12 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
               <span className="text-lg">{profile.name[0]}</span>
             </div>
@@ -168,7 +176,6 @@ function SwipeCard({
             </p>
           )}
 
-          {/* Looking for badge */}
           <span className="inline-block text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
             {profile.lookingFor === "romantic"
               ? "Looking for romance"
@@ -179,7 +186,6 @@ function SwipeCard({
         </div>
       </div>
 
-      {/* Swipe hint overlays */}
       <motion.div
         className="absolute top-6 left-6 px-3 py-1.5 rounded-lg border-2 border-red-400/60 text-red-400 text-sm font-medium rotate-[-12deg]"
         style={{ opacity: passLabelOpacity }}
@@ -203,34 +209,51 @@ export default function DiscoverScreen({
   onOpenProfile,
   onOpenMessages,
   onOpenConservation,
+  onRefreshProfiles,
 }: DiscoverScreenProps) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [liking, setLiking] = useState(false);
 
-  const remaining = profiles.filter((p) => !dismissed.has(p.id));
+  const remaining = profiles.filter((p) => !dismissed.has(p._id));
   const visibleProfiles = remaining.slice(0, 2);
 
   const handleSwipeLeft = () => {
     if (remaining.length === 0) return;
-    setDismissed((prev) => new Set([...prev, remaining[0].id]));
+    setDismissed((prev) => new Set([...prev, remaining[0]._id]));
   };
 
-  const handleSwipeRight = () => {
-    if (remaining.length === 0) return;
+  const handleSwipeRight = async () => {
+    if (remaining.length === 0 || liking) return;
     const profile = remaining[0];
-    setDismissed((prev) => new Set([...prev, profile.id]));
-    onMatch(profile);
+    setDismissed((prev) => new Set([...prev, profile._id]));
+    setLiking(true);
+
+    try {
+      const res = await fetch("/api/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ likedUserId: profile._id }),
+      });
+      const data = await res.json();
+
+      if (data.matched && data.match) {
+        onMatch(data.match);
+      }
+    } catch (err) {
+      console.error("Failed to like:", err);
+    } finally {
+      setLiking(false);
+    }
   };
 
   return (
     <div className="h-screen-safe flex flex-col bg-background">
-      {/* Navigation */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
-        <button
-          onClick={onOpenProfile}
-          className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs cursor-pointer"
-        >
-          T
-        </button>
+        <UserButton
+          appearance={{
+            elements: { userButtonAvatarBox: "w-8 h-8" },
+          }}
+        />
         <h1
           className="text-lg font-light tracking-wide"
           style={{ fontFamily: "var(--font-display), Georgia, serif" }}
@@ -255,14 +278,13 @@ export default function DiscoverScreen({
         </div>
       </div>
 
-      {/* Card stack */}
       <div className="flex-1 relative px-0 py-4">
         <AnimatePresence mode="popLayout">
           {visibleProfiles.length > 0 ? (
             visibleProfiles
               .map((profile, i) => (
                 <SwipeCard
-                  key={profile.id}
+                  key={profile._id}
                   profile={profile}
                   currentUser={currentUser}
                   onSwipeLeft={handleSwipeLeft}
@@ -289,12 +311,20 @@ export default function DiscoverScreen({
                 Check back as more travelers arrive.
               </p>
               <div className="mt-8 text-4xl opacity-40">🐦🐦🐦</div>
+              <button
+                onClick={() => {
+                  setDismissed(new Set());
+                  onRefreshProfiles();
+                }}
+                className="mt-6 px-6 py-2 rounded-full border border-border/40 text-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
+              >
+                Refresh
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Action buttons */}
       {visibleProfiles.length > 0 && (
         <div className="flex items-center justify-center gap-8 pb-6 pt-2">
           <button
@@ -306,7 +336,8 @@ export default function DiscoverScreen({
           </button>
           <button
             onClick={handleSwipeRight}
-            className="w-14 h-14 rounded-full border-2 border-teal hover:border-teal flex items-center justify-center text-xl transition-colors cursor-pointer hover:bg-teal-soft"
+            disabled={liking}
+            className="w-14 h-14 rounded-full border-2 border-teal hover:border-teal flex items-center justify-center text-xl transition-colors cursor-pointer hover:bg-teal-soft disabled:opacity-50"
             title="Connect"
           >
             ♥
