@@ -52,8 +52,6 @@ function AppContent() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: data.name,
-          age: data.age,
           birthCountry: data.birthCountry,
           grewUp: data.grewUp,
           recentMigrations: data.recentMigrations,

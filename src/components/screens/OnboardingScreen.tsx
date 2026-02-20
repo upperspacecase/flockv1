@@ -11,8 +11,6 @@ interface OnboardingScreenProps {
 }
 
 export interface OnboardingResult {
-  name: string;
-  age: number;
   birthCountry: MigrationStop;
   grewUp: MigrationStop[];
   recentMigrations: MigrationStop[];
@@ -47,8 +45,6 @@ export default function OnboardingScreen({
   onComplete,
 }: OnboardingScreenProps) {
   const [step, setStep] = useState(0);
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
   const [birthCountry, setBirthCountry] = useState<Country | null>(null);
   const [grewUp, setGrewUp] = useState<Country[]>([]);
   const [recent, setRecent] = useState<Country[]>([]);
@@ -83,33 +79,29 @@ export default function OnboardingScreen({
     [future]
   );
 
-  // steps: 0=name, 1=age, 2=birth, 3=grewUp, 4=recent, 5=current, 6=future, 7=flexibility, 8=lookingFor
+  // steps: 0=birth, 1=grewUp, 2=recent, 3=current, 4=future, 5=flexibility, 6=lookingFor
   const canAdvance = useCallback(() => {
     switch (step) {
       case 0:
-        return name.trim().length >= 2;
-      case 1:
-        return parseInt(age) >= 18 && parseInt(age) <= 99;
-      case 2:
         return !!birthCountry;
-      case 3:
+      case 1:
         return grewUp.length > 0;
-      case 4:
+      case 2:
         return recent.length > 0;
-      case 5:
+      case 3:
         return !!currentLoc;
-      case 6:
+      case 4:
         return future.length > 0;
-      case 7:
+      case 5:
         return true;
-      case 8:
+      case 6:
         return true;
       default:
         return false;
     }
-  }, [step, name, age, birthCountry, grewUp, recent, currentLoc, future]);
+  }, [step, birthCountry, grewUp, recent, currentLoc, future]);
 
-  const totalSteps = 9;
+  const totalSteps = 7;
 
   const handleNext = () => {
     if (step < totalSteps - 1) {
@@ -117,8 +109,6 @@ export default function OnboardingScreen({
       setSearchQuery("");
     } else {
       onComplete({
-        name: name.trim(),
-        age: parseInt(age),
         birthCountry: countryToStop(birthCountry!),
         grewUp: grewUp.map(countryToStop),
         recentMigrations: recent.map(countryToStop),
@@ -132,27 +122,27 @@ export default function OnboardingScreen({
 
   const handleCountrySelect = (country: Country) => {
     switch (step) {
-      case 2:
+      case 0:
         setBirthCountry(country);
         setSearchQuery("");
         break;
-      case 3:
+      case 1:
         if (!grewUp.find((c) => c.code === country.code)) {
           setGrewUp([...grewUp, country]);
         }
         setSearchQuery("");
         break;
-      case 4:
+      case 2:
         if (!recent.find((c) => c.code === country.code)) {
           setRecent([...recent, country]);
         }
         setSearchQuery("");
         break;
-      case 5:
+      case 3:
         setCurrentLoc(country);
         setSearchQuery("");
         break;
-      case 6:
+      case 4:
         if (!future.find((c) => c.code === country.code)) {
           setFuture([...future, country]);
         }
@@ -163,21 +153,19 @@ export default function OnboardingScreen({
 
   const removeCountry = (code: string) => {
     switch (step) {
-      case 3:
+      case 1:
         setGrewUp(grewUp.filter((c) => c.code !== code));
         break;
-      case 4:
+      case 2:
         setRecent(recent.filter((c) => c.code !== code));
         break;
-      case 6:
+      case 4:
         setFuture(future.filter((c) => c.code !== code));
         break;
     }
   };
 
   const questions = [
-    "What should we call you?",
-    "How old are you?",
     "Where did your journey begin?",
     "Where did you grow up?",
     "Where have you been recently?",
@@ -188,8 +176,6 @@ export default function OnboardingScreen({
   ];
 
   const subtitles = [
-    "Your name — how your flock will know you.",
-    "Just a number. We'll keep it between us.",
     "Your birth country — the first pin on your map.",
     "The countries that shaped you. Add as many as you like.",
     "Your recent migrations — the last few chapters.",
@@ -199,22 +185,22 @@ export default function OnboardingScreen({
     "There's no wrong answer here.",
   ];
 
-  const isCountryStep = step >= 2 && step <= 6;
+  const isCountryStep = step >= 0 && step <= 4;
 
   const selectedForStep =
-    step === 2
+    step === 0
       ? birthCountry
         ? [birthCountry]
         : []
-      : step === 3
+      : step === 1
         ? grewUp
-        : step === 4
+        : step === 2
           ? recent
-          : step === 5
+          : step === 3
             ? currentLoc
               ? [currentLoc]
               : []
-            : step === 6
+            : step === 4
               ? future
               : [];
 
@@ -261,33 +247,7 @@ export default function OnboardingScreen({
               {subtitles[step]}
             </p>
 
-            {/* Name input (step 0) */}
-            {step === 0 && (
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                autoFocus
-                className="w-full px-4 py-3 bg-[#e8ddd1]/10 border border-[#e8ddd1]/15 rounded-xl text-[#faf6f1] placeholder:text-[#e8ddd1]/30 focus:outline-none focus:border-[#c8854c]/40 transition-colors text-lg"
-              />
-            )}
-
-            {/* Age input (step 1) */}
-            {step === 1 && (
-              <input
-                type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="Age"
-                autoFocus
-                min={18}
-                max={99}
-                className="w-full px-4 py-3 bg-[#e8ddd1]/10 border border-[#e8ddd1]/15 rounded-xl text-[#faf6f1] placeholder:text-[#e8ddd1]/30 focus:outline-none focus:border-[#c8854c]/40 transition-colors text-lg"
-              />
-            )}
-
-            {/* Country search (steps 2-6) */}
+            {/* Country search (steps 0-4) */}
             {isCountryStep && (
               <div className="space-y-3">
                 <input
@@ -322,7 +282,7 @@ export default function OnboardingScreen({
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#c8854c]/20 border border-[#c8854c]/30 text-[#faf6f1] text-sm"
                       >
                         {c.name}
-                        {(step === 3 || step === 4 || step === 6) && (
+                        {(step === 1 || step === 2 || step === 4) && (
                           <button
                             onClick={() => removeCountry(c.code)}
                             className="hover:text-[#e07a5f] transition-colors cursor-pointer"
@@ -338,7 +298,7 @@ export default function OnboardingScreen({
             )}
 
             {/* Flexibility slider (step 7) */}
-            {step === 7 && (
+            {step === 5 && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between text-[#e8ddd1]/60 text-xs tracking-wide">
                   <span>Rooted</span>
@@ -381,7 +341,7 @@ export default function OnboardingScreen({
             )}
 
             {/* Looking for (step 8) */}
-            {step === 8 && (
+            {step === 6 && (
               <div className="space-y-3">
                 {[
                   {
@@ -407,8 +367,8 @@ export default function OnboardingScreen({
                     key={opt.value}
                     onClick={() => setLookingFor(opt.value)}
                     className={`w-full text-left px-5 py-4 rounded-xl border transition-all cursor-pointer ${lookingFor === opt.value
-                        ? "bg-[#c8854c]/20 border-[#c8854c]/40"
-                        : "bg-[#e8ddd1]/5 border-[#e8ddd1]/10 hover:bg-[#e8ddd1]/10"
+                      ? "bg-[#c8854c]/20 border-[#c8854c]/40"
+                      : "bg-[#e8ddd1]/5 border-[#e8ddd1]/10 hover:bg-[#e8ddd1]/10"
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -451,8 +411,8 @@ export default function OnboardingScreen({
             onClick={handleNext}
             disabled={!canAdvance()}
             className={`px-8 py-3 rounded-full text-sm tracking-wide transition-all cursor-pointer ${canAdvance()
-                ? "bg-[#c8854c] text-[#faf6f1] hover:bg-[#b5763f]"
-                : "bg-[#e8ddd1]/10 text-[#e8ddd1]/20 cursor-not-allowed"
+              ? "bg-[#c8854c] text-[#faf6f1] hover:bg-[#b5763f]"
+              : "bg-[#e8ddd1]/10 text-[#e8ddd1]/20 cursor-not-allowed"
               }`}
           >
             {step === totalSteps - 1 ? "Find my flock" : "Continue"}
@@ -465,10 +425,10 @@ export default function OnboardingScreen({
             <div
               key={i}
               className={`h-1 rounded-full transition-all duration-500 ${i === step
-                  ? "w-6 bg-[#c8854c]"
-                  : i < step
-                    ? "w-1.5 bg-[#c8854c]/40"
-                    : "w-1.5 bg-[#e8ddd1]/15"
+                ? "w-6 bg-[#c8854c]"
+                : i < step
+                  ? "w-1.5 bg-[#c8854c]/40"
+                  : "w-1.5 bg-[#e8ddd1]/15"
                 }`}
             />
           ))}

@@ -19,7 +19,7 @@ const MigrationStopSchema = new Schema(
 export interface IUser extends Document {
     clerkId: string;
     name: string;
-    age: number;
+    age?: number;
     photo: string;
     bio?: string;
     birthCountry: {
@@ -66,8 +66,8 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>(
     {
         clerkId: { type: String, required: true, unique: true, index: true },
-        name: { type: String, required: true },
-        age: { type: Number, required: true },
+        name: { type: String, default: "" },
+        age: { type: Number, default: 0 },
         photo: { type: String, default: "" },
         bio: { type: String, default: "" },
         birthCountry: { type: MigrationStopSchema, required: true },
