@@ -6,7 +6,7 @@ import type { AppUser } from "@/lib/app-state";
 
 interface ProfileCreationScreenProps {
     user: AppUser | null;
-    onComplete: (data: { name: string; bio: string; photos: string[] }) => void;
+    onComplete: (data: { name: string; lastTuesday: string; photos: string[] }) => void;
     onSkip: () => void;
 }
 
@@ -16,7 +16,7 @@ export default function ProfileCreationScreen({
     onSkip,
 }: ProfileCreationScreenProps) {
     const [name, setName] = useState(user?.name || "");
-    const [bio, setBio] = useState(user?.bio || "");
+    const [lastTuesday, setLastTuesday] = useState(user?.lastTuesday || "");
     const [photos, setPhotos] = useState<string[]>(user?.photos || []);
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -57,7 +57,7 @@ export default function ProfileCreationScreen({
     const handleSave = async () => {
         if (!canComplete) return;
         setSaving(true);
-        onComplete({ name: name.trim(), bio: bio.trim(), photos });
+        onComplete({ name: name.trim(), lastTuesday: lastTuesday.trim(), photos });
     };
 
     return (
@@ -172,12 +172,12 @@ export default function ProfileCreationScreen({
                     transition={{ delay: 0.4, duration: 0.6 }}
                 >
                     <label className="text-xs text-[#888] uppercase tracking-wider block mb-2">
-                        Bio <span className="text-[#ccc]">(optional)</span>
+                        What did last Tuesday look like? <span className="text-[#ccc]">(optional)</span>
                     </label>
                     <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        placeholder="A few words about your journey..."
+                        value={lastTuesday}
+                        onChange={(e) => setLastTuesday(e.target.value)}
+                        placeholder="Coffee in Lisbon, worked from a rooftop, got lost looking for dinner..."
                         rows={3}
                         className="w-full px-4 py-3 bg-[#f8f8f8] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] placeholder:text-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none"
                     />

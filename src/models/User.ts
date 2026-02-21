@@ -22,7 +22,7 @@ export interface IUser extends Document {
     age?: number;
     photo: string;
     photos: string[];
-    bio?: string;
+    lastTuesday?: string;
     birthCountry: {
         country: string;
         countryCode: string;
@@ -71,7 +71,7 @@ const UserSchema = new Schema<IUser>(
         age: { type: Number, default: 0 },
         photo: { type: String, default: "" },
         photos: { type: [String], default: [] },
-        bio: { type: String, default: "" },
+        lastTuesday: { type: String, default: "" },
         birthCountry: { type: MigrationStopSchema, required: true },
         grewUp: { type: [MigrationStopSchema], default: [] },
         recentMigrations: { type: [MigrationStopSchema], default: [] },

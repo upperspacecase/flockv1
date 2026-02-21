@@ -171,10 +171,13 @@ function SwipeCard({
             </div>
           )}
 
-          {profile.bio && (
-            <p className="text-sm text-foreground/60 leading-relaxed">
-              {profile.bio}
-            </p>
+          {profile.lastTuesday && (
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Last Tuesday</p>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                {profile.lastTuesday}
+              </p>
+            </div>
           )}
 
           <span className="inline-block text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">

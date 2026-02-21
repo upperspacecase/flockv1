@@ -27,7 +27,7 @@ export interface AppUser {
   age: number;
   photo: string;
   photos: string[];
-  bio?: string;
+  lastTuesday?: string;
   birthCountry: MigrationStop;
   grewUp: MigrationStop[];
   recentMigrations: MigrationStop[];
