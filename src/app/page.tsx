@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
-import { AppProvider, useApp } from "@/lib/app-state";
+import { AppProvider, useApp, type AppScreen } from "@/lib/app-state";
 import SplashScreen from "@/components/screens/SplashScreen";
 import OnboardingScreen from "@/components/screens/OnboardingScreen";
 import type { OnboardingResult } from "@/components/screens/OnboardingScreen";
@@ -37,17 +37,13 @@ function AppContent() {
   } = useApp();
 
   const [pendingLikeId, setPendingLikeId] = useState<string | null>(null);
-
-  // Check if user needs profile creation (has name + at least 1 photo)
   const isProfileComplete = !!(dbUser?.name && dbUser.photos?.length > 0);
 
   // Handle onboarding completion
   const handleOnboardingComplete = async (data: OnboardingResult) => {
-    // Save to localStorage for persistence across auth
     localStorage.setItem(ONBOARDING_KEY, JSON.stringify(data));
 
     if (isSignedIn) {
-      // Already signed in — save to DB directly
       try {
         const res = await fetch("/api/users/me", {
           method: "PUT",
@@ -64,8 +60,6 @@ function AppContent() {
         console.error("Failed to save onboarding:", err);
       }
     } else {
-      // Not signed in — switch to auth screen
-      // After sign-in, app-state will detect localStorage data and auto-save
       setScreen("auth");
     }
   };
@@ -101,26 +95,143 @@ function AppContent() {
     );
   }
 
+  // Tab bar screens
+  const tabScreens: AppScreen[] = ["discover", "flock", "messages", "profile"];
+  const isTabScreen = tabScreens.includes(screen);
+
+  const tabs = [
+    { id: "discover" as AppScreen, icon: "🔍", label: "Discover" },
+    { id: "flock" as AppScreen, icon: "🐦", label: "Flock", showLeaf: hasNewActivity },
+    { id: "messages" as AppScreen, icon: "💬", label: "Messages" },
+    { id: "profile" as AppScreen, icon: "👤", label: "Profile" },
+  ];
+
   return (
     <div className="max-w-md mx-auto h-screen-safe relative overflow-hidden bg-background">
+      {/* ─── Tab layout ─── */}
+      {isTabScreen && (
+        <div className="absolute inset-0 flex flex-col">
+          {/* Tab content area */}
+          <div className="flex-1 relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              {screen === "discover" && (
+                <motion.div
+                  key="discover"
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <DiscoverScreen
+                    profiles={profiles}
+                    currentUser={dbUser}
+                    onMatch={(match) => {
+                      setCurrentMatchView(match);
+                      setScreen("match");
+                    }}
+                    onNeedProfile={(profileId) => {
+                      setPendingLikeId(profileId);
+                      setScreen("create-profile");
+                    }}
+                    isProfileComplete={isProfileComplete}
+                    onRefreshProfiles={refreshProfiles}
+                  />
+                </motion.div>
+              )}
+
+              {screen === "flock" && (
+                <motion.div
+                  key="flock"
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FlockScreen
+                    onBack={() => setScreen("discover")}
+                    onOpenChat={() => setScreen("messages")}
+                  />
+                </motion.div>
+              )}
+
+              {screen === "messages" && (
+                <motion.div
+                  key="messages"
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <MessagesScreen
+                    onBack={() => setScreen("discover")}
+                  />
+                </motion.div>
+              )}
+
+              {screen === "profile" && (
+                <motion.div
+                  key="profile"
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ProfileScreen
+                    user={dbUser}
+                    onBack={() => setScreen("discover")}
+                    onUpdate={(updatedUser) => setDbUser(updatedUser)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Bottom tab bar */}
+          <div className="flex items-center justify-around border-t border-[#eee] bg-[#fefefe] py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (tab.id === "flock") markActivitySeen();
+                  setScreen(tab.id);
+                }}
+                className={`relative flex flex-col items-center gap-0.5 px-4 py-1 rounded-lg transition-colors cursor-pointer ${screen === tab.id
+                    ? "text-[#1a1a1a]"
+                    : "text-[#bbb] hover:text-[#888]"
+                  }`}
+              >
+                <span className="text-lg">{tab.icon}</span>
+                <span className="text-[10px] tracking-wide">{tab.label}</span>
+                {tab.showLeaf && (
+                  <span className="absolute -top-0.5 right-1 text-[9px] leading-none">🍃</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Overlay screens (no tab bar) ─── */}
       <AnimatePresence mode="wait">
         {screen === "splash" && (
           <motion.div
             key="splash"
-            className="absolute inset-0"
+            className="absolute inset-0 z-20"
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <SplashScreen
-              onContinue={() => setScreen("onboarding")}
-            />
+            <SplashScreen onContinue={() => setScreen("onboarding")} />
           </motion.div>
         )}
 
         {screen === "onboarding" && (
           <motion.div
             key="onboarding"
-            className="absolute inset-0"
+            className="absolute inset-0 z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -133,19 +244,17 @@ function AppContent() {
         {screen === "auth" && (
           <motion.div
             key="auth"
-            className="absolute inset-0"
+            className="absolute inset-0 z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="h-screen-safe flex flex-col items-center justify-center bg-[#fefefe] relative overflow-hidden">
-              <div className="relative z-10 flex flex-col items-center px-8 text-center max-w-sm">
+            <div className="h-screen-safe flex flex-col items-center justify-center bg-[#fefefe]">
+              <div className="flex flex-col items-center px-8 text-center max-w-sm">
                 <h2
                   className="text-3xl font-light tracking-wide text-[#1a1a1a] mb-3"
-                  style={{
-                    fontFamily: "Georgia, Cambria, serif",
-                  }}
+                  style={{ fontFamily: "Georgia, Cambria, serif" }}
                 >
                   Your map is ready.
                 </h2>
@@ -169,64 +278,10 @@ function AppContent() {
           </motion.div>
         )}
 
-        {screen === "discover" && (
-          <motion.div
-            key="discover"
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <DiscoverScreen
-              profiles={profiles}
-              currentUser={dbUser}
-              onOpenProfile={() => setScreen("profile")}
-              onOpenMessages={() => {
-                markActivitySeen();
-                setScreen("messages");
-              }}
-              onOpenConservation={() => setScreen("conservation")}
-              onOpenFlock={() => {
-                markActivitySeen();
-                setScreen("flock");
-              }}
-              onMatch={(match) => {
-                setCurrentMatchView(match);
-                setScreen("match");
-              }}
-              onNeedProfile={(profileId) => {
-                setPendingLikeId(profileId);
-                setScreen("create-profile");
-              }}
-              isProfileComplete={isProfileComplete}
-              onRefreshProfiles={refreshProfiles}
-              hasNewActivity={hasNewActivity}
-            />
-          </motion.div>
-        )}
-
-        {screen === "profile" && (
-          <motion.div
-            key="profile"
-            className="absolute inset-0"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <ProfileScreen
-              user={dbUser}
-              onBack={() => setScreen("discover")}
-              onUpdate={(updatedUser) => setDbUser(updatedUser)}
-            />
-          </motion.div>
-        )}
-
         {screen === "match" && currentMatchView && (
           <motion.div
             key="match"
-            className="absolute inset-0"
+            className="absolute inset-0 z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -241,44 +296,27 @@ function AppContent() {
           </motion.div>
         )}
 
-        {screen === "messages" && (
-          <motion.div
-            key="messages"
-            className="absolute inset-0"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <MessagesScreen
-              onBack={() => setScreen("discover")}
-            />
-          </motion.div>
-        )}
-
         {screen === "conservation" && (
           <motion.div
             key="conservation"
-            className="absolute inset-0"
+            className="absolute inset-0 z-20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4 }}
           >
-            <ConservationScreen
-              onBack={() => setScreen("discover")}
-            />
+            <ConservationScreen onBack={() => setScreen("discover")} />
           </motion.div>
         )}
 
         {screen === "create-profile" && (
           <motion.div
             key="create-profile"
-            className="absolute inset-0"
+            className="absolute inset-0 z-20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4 }}
           >
             <ProfileCreationScreen
               user={dbUser}
@@ -295,7 +333,6 @@ function AppContent() {
                   console.error("Failed to save profile:", err);
                 }
 
-                // Resume the pending like
                 if (pendingLikeId) {
                   try {
                     const likeRes = await fetch("/api/likes", {
@@ -321,22 +358,6 @@ function AppContent() {
                 setPendingLikeId(null);
                 setScreen("discover");
               }}
-            />
-          </motion.div>
-        )}
-
-        {screen === "flock" && (
-          <motion.div
-            key="flock"
-            className="absolute inset-0"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <FlockScreen
-              onBack={() => setScreen("discover")}
-              onOpenChat={() => setScreen("messages")}
             />
           </motion.div>
         )}
