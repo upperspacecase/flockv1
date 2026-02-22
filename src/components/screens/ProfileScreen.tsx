@@ -357,7 +357,7 @@ function ProfileEdit({
           onChange={(e) =>
             onChange({ ...draft, flexibility: parseFloat(e.target.value) })
           }
-          className="w-full accent-[#1a1a1a] h-1.5 cursor-pointer"
+          className="w-full accent-[#c8a84e] h-1.5 cursor-pointer"
         />
       </div>
 

@@ -2,21 +2,21 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  /* Clean line-art palette — white, black, charcoal */
-  --background: #fefefe;
+  /* Warm cream & gold palette */
+  --background: #f4efe7;
   --foreground: #1a1a1a;
-  --card: #ffffff;
+  --card: #faf7f2;
   --card-foreground: #1a1a1a;
-  --accent: #1a1a1a;
-  --accent-foreground: #fefefe;
-  --muted: #f0f0f0;
-  --muted-foreground: #666666;
-  --border: #e0e0e0;
+  --accent: #c8a84e;
+  --accent-foreground: #1a1a1a;
+  --muted: #ece7dd;
+  --muted-foreground: #8a7e6d;
+  --border: #ddd5c8;
   --migration-start: #1a1a1a;
-  --migration-end: #555555;
-  --overlap-glow: rgba(0, 0, 0, 0.15);
+  --migration-end: #8a7e6d;
+  --overlap-glow: rgba(200, 168, 78, 0.25);
   --teal: #1a1a1a;
-  --teal-soft: rgba(0, 0, 0, 0.05);
+  --teal-soft: rgba(200, 168, 78, 0.08);
 }
 
 @theme inline {
@@ -40,20 +40,20 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #111111;
-    --foreground: #e8e8e8;
-    --card: #1a1a1a;
-    --card-foreground: #e8e8e8;
-    --accent: #e8e8e8;
-    --accent-foreground: #111111;
-    --muted: #222222;
-    --muted-foreground: #999999;
-    --border: #333333;
-    --migration-start: #e8e8e8;
-    --migration-end: #aaaaaa;
-    --overlap-glow: rgba(255, 255, 255, 0.15);
-    --teal: #e8e8e8;
-    --teal-soft: rgba(255, 255, 255, 0.05);
+    --background: #1a1712;
+    --foreground: #ede8df;
+    --card: #252017;
+    --card-foreground: #ede8df;
+    --accent: #c8a84e;
+    --accent-foreground: #1a1712;
+    --muted: #2a2418;
+    --muted-foreground: #a09585;
+    --border: #3a3328;
+    --migration-start: #ede8df;
+    --migration-end: #a09585;
+    --overlap-glow: rgba(200, 168, 78, 0.3);
+    --teal: #ede8df;
+    --teal-soft: rgba(200, 168, 78, 0.1);
   }
 }
 

@@ -25,13 +25,13 @@ function countryToStop(c: Country): MigrationStop {
 }
 
 const bgColors = [
-  "from-[#fefefe] to-[#f5f5f5]",
-  "from-[#fefefe] to-[#f5f5f5]",
-  "from-[#fefefe] to-[#f5f5f5]",
-  "from-[#fefefe] to-[#f5f5f5]",
-  "from-[#fefefe] to-[#f5f5f5]",
-  "from-[#fefefe] to-[#f5f5f5]",
-  "from-[#fefefe] to-[#f5f5f5]",
+  "from-[#f4efe7] to-[#ede8df]",
+  "from-[#f4efe7] to-[#ede8df]",
+  "from-[#f4efe7] to-[#ede8df]",
+  "from-[#f4efe7] to-[#ede8df]",
+  "from-[#f4efe7] to-[#ede8df]",
+  "from-[#f4efe7] to-[#ede8df]",
+  "from-[#f4efe7] to-[#ede8df]",
 ];
 
 const stepVariants = {
@@ -242,7 +242,7 @@ export default function OnboardingScreen({
             >
               {questions[step]}
             </h2>
-            <p className="text-sm text-[#888] mb-8">
+            <p className="text-sm text-[#8a7e6d] mb-8">
               {subtitles[step]}
             </p>
 
@@ -254,7 +254,7 @@ export default function OnboardingScreen({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for a country..."
-                  className="w-full px-4 py-3 bg-[#f8f8f8] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] placeholder:text-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                  className="w-full px-4 py-3 bg-[#ece7dd] border border-[#ddd5c8] rounded-xl text-[#1a1a1a] placeholder:text-[#b5aa98] focus:outline-none focus:border-[#c8a84e] transition-colors"
                 />
 
                 {/* Search results */}
@@ -264,7 +264,7 @@ export default function OnboardingScreen({
                       <button
                         key={c.code}
                         onClick={() => handleCountrySelect(c)}
-                        className="w-full text-left px-4 py-2.5 rounded-lg bg-[#f5f5f5] hover:bg-[#eee] text-[#1a1a1a] text-sm transition-colors cursor-pointer"
+                        className="w-full text-left px-4 py-2.5 rounded-lg bg-[#ece7dd] hover:bg-[#e3ddd2] text-[#1a1a1a] text-sm transition-colors cursor-pointer"
                       >
                         {c.name}
                       </button>
@@ -278,13 +278,13 @@ export default function OnboardingScreen({
                     {selectedForStep.map((c) => (
                       <span
                         key={c.code}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f0f0f0] border border-[#ddd] text-[#1a1a1a] text-sm"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ece7dd] border border-[#ddd5c8] text-[#1a1a1a] text-sm"
                       >
                         {c.name}
                         {(step === 1 || step === 2 || step === 4) && (
                           <button
                             onClick={() => removeCountry(c.code)}
-                            className="hover:text-[#999] transition-colors cursor-pointer"
+                            className="hover:text-[#8a7e6d] transition-colors cursor-pointer"
                           >
                             ×
                           </button>
@@ -299,7 +299,7 @@ export default function OnboardingScreen({
             {/* Flexibility slider (step 7) */}
             {step === 5 && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between text-[#888] text-xs tracking-wide">
+                <div className="flex items-center justify-between text-[#8a7e6d] text-xs tracking-wide">
                   <span>Rooted</span>
                   <span>Wind-blown</span>
                 </div>
@@ -312,9 +312,9 @@ export default function OnboardingScreen({
                   onChange={(e) =>
                     setFlexibility(parseFloat(e.target.value))
                   }
-                  className="w-full accent-[#1a1a1a] h-1.5 cursor-pointer"
+                  className="w-full accent-[#c8a84e] h-1.5 cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, #1a1a1a ${flexibility * 100}%, #e0e0e0 ${flexibility * 100}%)`,
+                    background: `linear-gradient(to right, #c8a84e ${flexibility * 100}%, #ddd5c8 ${flexibility * 100}%)`,
                   }}
                 />
                 <div className="flex justify-center">
@@ -380,8 +380,8 @@ export default function OnboardingScreen({
                     key={opt.value}
                     onClick={() => setLookingFor(opt.value)}
                     className={`w-full text-left px-5 py-4 rounded-xl border transition-all cursor-pointer ${lookingFor === opt.value
-                      ? "bg-[#f0f0f0] border-[#1a1a1a]"
-                      : "bg-white border-[#e0e0e0] hover:bg-[#f8f8f8]"
+                      ? "bg-[#ece7dd] border-[#c8a84e]"
+                      : "bg-[#faf7f2] border-[#ddd5c8] hover:bg-[#ece7dd]"
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -389,7 +389,7 @@ export default function OnboardingScreen({
                         <p className="text-[#1a1a1a] text-sm font-medium">
                           {opt.label}
                         </p>
-                        <p className="text-[#888] text-xs mt-0.5">
+                        <p className="text-[#8a7e6d] text-xs mt-0.5">
                           {opt.desc}
                         </p>
                       </div>
@@ -411,7 +411,7 @@ export default function OnboardingScreen({
                 setStep(step - 1);
                 setSearchQuery("");
               }}
-              className="text-[#999] text-sm hover:text-[#1a1a1a] transition-colors cursor-pointer"
+              className="text-[#a09585] text-sm hover:text-[#1a1a1a] transition-colors cursor-pointer"
             >
               Back
             </button>
@@ -423,8 +423,8 @@ export default function OnboardingScreen({
             onClick={handleNext}
             disabled={!canAdvance()}
             className={`px-8 py-3 rounded-full text-sm tracking-widest uppercase transition-all cursor-pointer ${canAdvance()
-              ? "bg-[#1a1a1a] text-white hover:bg-[#333]"
-              : "bg-[#f0f0f0] text-[#ccc] cursor-not-allowed"
+              ? "bg-[#c8a84e] text-[#1a1a1a] hover:bg-[#b89940]"
+              : "bg-[#ece7dd] text-[#b5aa98] cursor-not-allowed"
               }`}
           >
             {step === totalSteps - 1 ? "Find my flock" : "Continue"}
@@ -437,10 +437,10 @@ export default function OnboardingScreen({
             <div
               key={i}
               className={`h-1 rounded-full transition-all duration-500 ${i === step
-                ? "w-6 bg-[#1a1a1a]"
+                ? "w-6 bg-[#c8a84e]"
                 : i < step
-                  ? "w-1.5 bg-[#1a1a1a]/40"
-                  : "w-1.5 bg-[#ddd]"
+                  ? "w-1.5 bg-[#c8a84e]/40"
+                  : "w-1.5 bg-[#ddd5c8]"
                 }`}
             />
           ))}

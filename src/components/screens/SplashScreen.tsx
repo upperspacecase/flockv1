@@ -18,7 +18,7 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
   }, []);
 
   return (
-    <div className="h-screen-safe relative overflow-hidden flex flex-col items-center justify-center bg-[#fefefe]">
+    <div className="h-screen-safe relative overflow-hidden flex flex-col items-center justify-center bg-[#f4efe7]">
       {/* Animated migration lines background */}
       <MigrationLines count={16} className="opacity-20" />
 
@@ -37,7 +37,7 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
 
         {/* Tagline */}
         <motion.p
-          className="mt-4 text-lg text-[#666] tracking-wide"
+          className="mt-4 text-lg text-[#8a7e6d] tracking-wide"
           style={{ fontFamily: "Georgia, Cambria, serif" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -51,7 +51,7 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
           {showCTA && (
             <motion.button
               onClick={onContinue}
-              className="mt-12 px-8 py-3 rounded-full border border-[#1a1a1a] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer"
+              className="mt-12 px-8 py-3 rounded-full bg-[#c8a84e] border border-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#b89940] transition-colors cursor-pointer"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -71,7 +71,7 @@ export default function SplashScreen({ onContinue }: SplashScreenProps) {
         transition={{ delay: 2, duration: 1 }}
       >
         <SignInButton>
-          <button className="text-[#999] text-xs tracking-widest uppercase hover:text-[#1a1a1a] transition-colors cursor-pointer">
+          <button className="text-[#a09585] text-xs tracking-widest uppercase hover:text-[#1a1a1a] transition-colors cursor-pointer">
             Login
           </button>
         </SignInButton>

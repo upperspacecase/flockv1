@@ -79,7 +79,7 @@ export default function BirdCelebration() {
                         height={bird.size * 0.5}
                         viewBox="0 0 24 12"
                         fill="none"
-                        stroke="#1a1a1a"
+                        stroke="#c8a84e"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                     >
@@ -110,7 +110,7 @@ export default function BirdCelebration() {
                         ease: "easeOut",
                     }}
                 >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" strokeWidth="1" strokeLinecap="round">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#c8a84e" strokeWidth="1" strokeLinecap="round">
                         <path d="M3 13 Q8 1 13 5" />
                     </svg>
                 </motion.div>

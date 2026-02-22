@@ -32,7 +32,7 @@ export default function MatchScreen({
   const stopsB = getAllStops(otherUser);
 
   return (
-    <div className="h-screen-safe overflow-y-auto bg-[#fefefe] text-[#1a1a1a] relative">
+    <div className="h-screen-safe overflow-y-auto bg-[#f4efe7] text-[#1a1a1a] relative">
       {/* Bird celebration animation */}
       <BirdCelebration />
 
@@ -64,7 +64,7 @@ export default function MatchScreen({
         </motion.h2>
 
         <motion.p
-          className="text-sm text-[#888] mt-2 text-center"
+          className="text-sm text-[#8a7e6d] mt-2 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
@@ -74,7 +74,7 @@ export default function MatchScreen({
 
         {/* Conservation invitation */}
         <motion.div
-          className="w-full max-w-sm mt-10 p-5 rounded-2xl bg-[#f8f8f8] border border-[#e0e0e0]"
+          className="w-full max-w-sm mt-10 p-5 rounded-2xl bg-[#faf7f2] border border-[#ddd5c8]"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -89,7 +89,7 @@ export default function MatchScreen({
           >
             {match.species.name}
           </p>
-          <p className="text-sm text-[#888] leading-relaxed mb-5">
+          <p className="text-sm text-[#8a7e6d] leading-relaxed mb-5">
             Would you like to support their journey together?
           </p>
 
@@ -98,7 +98,7 @@ export default function MatchScreen({
               <button
                 key={amount}
                 onClick={() => onSupportTogether(amount)}
-                className="flex-1 py-2.5 rounded-xl border border-[#1a1a1a] text-[#1a1a1a] text-sm hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl border border-[#c8a84e] text-[#1a1a1a] text-sm hover:bg-[#c8a84e] transition-colors cursor-pointer"
               >
                 ${amount}
               </button>
@@ -107,7 +107,7 @@ export default function MatchScreen({
 
           <button
             onClick={onJustSayHello}
-            className="w-full text-center text-sm text-[#999] hover:text-[#1a1a1a] transition-colors cursor-pointer py-2"
+            className="w-full text-center text-sm text-[#a09585] hover:text-[#1a1a1a] transition-colors cursor-pointer py-2"
           >
             Not now — just say hello
           </button>

@@ -61,7 +61,7 @@ export default function ProfileCreationScreen({
     };
 
     return (
-        <div className="h-screen-safe overflow-y-auto bg-[#fefefe]">
+        <div className="h-screen-safe overflow-y-auto bg-[#f4efe7]">
             <div className="min-h-full flex flex-col px-6 py-12">
                 {/* Header */}
                 <motion.div
@@ -76,7 +76,7 @@ export default function ProfileCreationScreen({
                     >
                         Create your profile
                     </h1>
-                    <p className="text-sm text-[#888]">
+                    <p className="text-sm text-[#8a7e6d]">
                         Let your flock know who you are.
                     </p>
                 </motion.div>
@@ -88,7 +88,7 @@ export default function ProfileCreationScreen({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.6 }}
                 >
-                    <label className="text-xs text-[#888] uppercase tracking-wider block mb-3">
+                    <label className="text-xs text-[#8a7e6d] uppercase tracking-wider block mb-3">
                         Photos ({photos.length}/2)
                     </label>
                     <div className="flex gap-3">
@@ -96,7 +96,7 @@ export default function ProfileCreationScreen({
                             {photos.map((url, i) => (
                                 <motion.div
                                     key={url}
-                                    className="relative w-36 h-44 rounded-xl overflow-hidden border border-[#e0e0e0]"
+                                    className="relative w-36 h-44 rounded-xl overflow-hidden border border-[#ddd5c8]"
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.8 }}
@@ -109,7 +109,7 @@ export default function ProfileCreationScreen({
                                     />
                                     <button
                                         onClick={() => removePhoto(i)}
-                                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-xs text-[#1a1a1a] hover:bg-white transition-colors cursor-pointer"
+                                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#faf7f2]/80 flex items-center justify-center text-xs text-[#1a1a1a] hover:bg-white transition-colors cursor-pointer"
                                     >
                                         ×
                                     </button>
@@ -121,7 +121,7 @@ export default function ProfileCreationScreen({
                             <motion.button
                                 onClick={() => fileRef.current?.click()}
                                 disabled={uploading}
-                                className="w-36 h-44 rounded-xl border-2 border-dashed border-[#ddd] flex flex-col items-center justify-center text-[#bbb] hover:border-[#999] hover:text-[#999] transition-colors cursor-pointer"
+                                className="w-36 h-44 rounded-xl border-2 border-dashed border-[#ddd5c8] flex flex-col items-center justify-center text-[#b5aa98] hover:border-[#8a7e6d] hover:text-[#8a7e6d] transition-colors cursor-pointer"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                             >
@@ -152,7 +152,7 @@ export default function ProfileCreationScreen({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.6 }}
                 >
-                    <label className="text-xs text-[#888] uppercase tracking-wider block mb-2">
+                    <label className="text-xs text-[#8a7e6d] uppercase tracking-wider block mb-2">
                         Name
                     </label>
                     <input
@@ -160,7 +160,7 @@ export default function ProfileCreationScreen({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="What should your flock call you?"
-                        className="w-full px-4 py-3 bg-[#f8f8f8] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] placeholder:text-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                        className="w-full px-4 py-3 bg-[#ece7dd] border border-[#ddd5c8] rounded-xl text-[#1a1a1a] placeholder:text-[#b5aa98] focus:outline-none focus:border-[#c8a84e] transition-colors"
                     />
                 </motion.div>
 
@@ -171,15 +171,15 @@ export default function ProfileCreationScreen({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.6 }}
                 >
-                    <label className="text-xs text-[#888] uppercase tracking-wider block mb-2">
-                        What did last Tuesday look like? <span className="text-[#ccc]">(optional)</span>
+                    <label className="text-xs text-[#8a7e6d] uppercase tracking-wider block mb-2">
+                        What did last Tuesday look like? <span className="text-[#b5aa98]">(optional)</span>
                     </label>
                     <textarea
                         value={lastTuesday}
                         onChange={(e) => setLastTuesday(e.target.value)}
                         placeholder="Coffee in Lisbon, worked from a rooftop, got lost looking for dinner..."
                         rows={3}
-                        className="w-full px-4 py-3 bg-[#f8f8f8] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] placeholder:text-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none"
+                        className="w-full px-4 py-3 bg-[#ece7dd] border border-[#ddd5c8] rounded-xl text-[#1a1a1a] placeholder:text-[#b5aa98] focus:outline-none focus:border-[#c8a84e] transition-colors resize-none"
                     />
                 </motion.div>
 
@@ -194,15 +194,15 @@ export default function ProfileCreationScreen({
                         onClick={handleSave}
                         disabled={!canComplete || saving}
                         className={`w-full py-3.5 rounded-full text-sm tracking-widest uppercase transition-all cursor-pointer ${canComplete
-                                ? "bg-[#1a1a1a] text-white hover:bg-[#333]"
-                                : "bg-[#f0f0f0] text-[#ccc] cursor-not-allowed"
+                                ? "bg-[#c8a84e] text-[#1a1a1a] hover:bg-[#b89940]"
+                                : "bg-[#ece7dd] text-[#b5aa98] cursor-not-allowed"
                             }`}
                     >
                         {saving ? "Saving..." : "Save & continue"}
                     </button>
                     <button
                         onClick={onSkip}
-                        className="w-full text-center text-sm text-[#999] hover:text-[#1a1a1a] transition-colors cursor-pointer py-2"
+                        className="w-full text-center text-sm text-[#a09585] hover:text-[#1a1a1a] transition-colors cursor-pointer py-2"
                     >
                         Skip for now
                     </button>

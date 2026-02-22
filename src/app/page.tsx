@@ -89,7 +89,7 @@ function AppContent() {
   // Loading state
   if (loading && screen !== "splash" && screen !== "onboarding") {
     return (
-      <div className="max-w-md mx-auto h-screen-safe flex items-center justify-center bg-[#fefefe]">
+      <div className="max-w-md mx-auto h-screen-safe flex items-center justify-center bg-[#f4efe7]">
         <BreathingLoader />
       </div>
     );
@@ -191,7 +191,7 @@ function AppContent() {
           </div>
 
           {/* Bottom tab bar */}
-          <div className="flex items-center justify-around border-t border-[#eee] bg-[#fefefe] py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <div className="flex items-center justify-around border-t border-[#ddd5c8] bg-[#f4efe7] py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -201,7 +201,7 @@ function AppContent() {
                 }}
                 className={`relative flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors cursor-pointer ${screen === tab.id
                     ? "text-[#1a1a1a]"
-                    : "text-[#bbb] hover:text-[#888]"
+                    : "text-[#b5aa98] hover:text-[#8a7e6d]"
                   }`}
               >
                 <span className={`text-[10px] tracking-widest uppercase ${screen === tab.id ? "font-medium" : ""}`}>{tab.label}</span>
@@ -249,7 +249,7 @@ function AppContent() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="h-screen-safe flex flex-col items-center justify-center bg-[#fefefe]">
+            <div className="h-screen-safe flex flex-col items-center justify-center bg-[#f4efe7]">
               <div className="flex flex-col items-center px-8 text-center max-w-sm">
                 <h2
                   className="text-3xl font-light tracking-wide text-[#1a1a1a] mb-3"
@@ -257,17 +257,17 @@ function AppContent() {
                 >
                   Your map is ready.
                 </h2>
-                <p className="text-sm text-[#888] mb-10 leading-relaxed">
+                <p className="text-sm text-[#8a7e6d] mb-10 leading-relaxed">
                   Sign in to save your migration and find your flock.
                 </p>
                 <div className="flex flex-col gap-3 w-full">
                   <SignUpButton>
-                    <button className="w-full px-8 py-3.5 rounded-full bg-[#1a1a1a] text-white text-sm tracking-widest uppercase hover:bg-[#333] transition-all cursor-pointer">
+                    <button className="w-full px-8 py-3.5 rounded-full bg-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#b89940] transition-all cursor-pointer">
                       Create Account
                     </button>
                   </SignUpButton>
                   <SignInButton>
-                    <button className="w-full px-8 py-3.5 rounded-full border border-[#1a1a1a] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-all cursor-pointer">
+                    <button className="w-full px-8 py-3.5 rounded-full border border-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#c8a84e] hover:text-[#1a1a1a] transition-all cursor-pointer">
                       Sign In
                     </button>
                   </SignInButton>

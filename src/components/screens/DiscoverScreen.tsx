@@ -197,7 +197,7 @@ function SwipeCard({
         Pass
       </motion.div>
       <motion.div
-        className="absolute top-6 right-6 px-3 py-1.5 rounded-lg border-2 border-[#1a1a1a]/60 text-[#1a1a1a] text-sm font-medium rotate-[12deg]"
+        className="absolute top-6 right-6 px-3 py-1.5 rounded-lg border-2 border-[#c8a84e]/60 text-[#c8a84e] text-sm font-medium rotate-[12deg]"
         style={{ opacity: connectLabelOpacity }}
       >
         Connect
@@ -294,7 +294,7 @@ export default function DiscoverScreen({
                   setDismissed(new Set());
                   onRefreshProfiles();
                 }}
-                className="mt-6 px-6 py-2 rounded-full border border-[#1a1a1a] text-sm text-[#1a1a1a] tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer"
+                className="mt-6 px-6 py-2 rounded-full bg-[#c8a84e] border border-[#c8a84e] text-sm text-[#1a1a1a] tracking-widest uppercase hover:bg-[#b89940] transition-colors cursor-pointer"
               >
                 Refresh
               </button>
@@ -307,7 +307,7 @@ export default function DiscoverScreen({
         <div className="flex items-center justify-center gap-8 pb-4 pt-2">
           <button
             onClick={handleSwipeLeft}
-            className="w-14 h-14 rounded-full border-2 border-[#ddd] hover:border-[#999] flex items-center justify-center text-xl text-[#bbb] hover:text-[#999] transition-colors cursor-pointer"
+            className="w-14 h-14 rounded-full border-2 border-[#ddd5c8] hover:border-[#8a7e6d] flex items-center justify-center text-xl text-[#b5aa98] hover:text-[#8a7e6d] transition-colors cursor-pointer"
             title="Pass"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg>
@@ -315,7 +315,7 @@ export default function DiscoverScreen({
           <button
             onClick={handleSwipeRight}
             disabled={liking}
-            className="w-14 h-14 rounded-full border-2 border-[#1a1a1a] bg-[#1a1a1a] flex items-center justify-center text-xl text-white hover:bg-[#333] transition-colors cursor-pointer disabled:opacity-50"
+            className="w-14 h-14 rounded-full border-2 border-[#c8a84e] bg-[#c8a84e] flex items-center justify-center text-xl text-white hover:bg-[#b89940] transition-colors cursor-pointer disabled:opacity-50"
             title="Connect"
           >
             <svg width="20" height="18" viewBox="0 0 20 18" fill="currentColor"><path d="M10 17.5s-1.1-.8-2.6-2C4.3 13 0 9.3 0 5.5 0 2.4 2.4 0 5.3 0 7 0 8.6.8 10 2.2 11.4.8 13 0 14.7 0 17.6 0 20 2.4 20 5.5c0 3.8-4.3 7.5-7.4 10-1.5 1.2-2.6 2-2.6 2z"/></svg>

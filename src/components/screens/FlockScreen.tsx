@@ -17,11 +17,11 @@ export default function FlockScreen({ onBack, onOpenChat }: FlockScreenProps) {
     }, [refreshMatches]);
 
     return (
-        <div className="h-screen-safe overflow-y-auto bg-[#fefefe]">
-            <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#fefefe]/80 backdrop-blur-md border-b border-[#e0e0e0]">
+        <div className="h-screen-safe overflow-y-auto bg-[#f4efe7]">
+            <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#f4efe7]/80 backdrop-blur-md border-b border-[#ddd5c8]">
                 <button
                     onClick={onBack}
-                    className="text-[#999] text-sm hover:text-[#1a1a1a] transition-colors cursor-pointer"
+                    className="text-[#a09585] text-sm hover:text-[#1a1a1a] transition-colors cursor-pointer"
                 >
                     ← Back
                 </button>
@@ -41,8 +41,8 @@ export default function FlockScreen({ onBack, onOpenChat }: FlockScreenProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                     >
-                        <div className="text-sm mb-4 text-[#999]/30 tracking-[0.3em] uppercase">· · ·</div>
-                        <p className="text-sm text-[#999] leading-relaxed max-w-[250px] mx-auto">
+                        <div className="text-sm mb-4 text-[#a09585]/30 tracking-[0.3em] uppercase">· · ·</div>
+                        <p className="text-sm text-[#a09585] leading-relaxed max-w-[250px] mx-auto">
                             Your flock is still forming. Keep discovering to find your people.
                         </p>
                     </motion.div>
@@ -54,13 +54,13 @@ export default function FlockScreen({ onBack, onOpenChat }: FlockScreenProps) {
                                 <motion.button
                                     key={match._id}
                                     onClick={() => onOpenChat(match)}
-                                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-[#e0e0e0] hover:bg-[#f8f8f8] transition-colors cursor-pointer text-left"
+                                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-[#ddd5c8] hover:bg-[#ece7dd] transition-colors cursor-pointer text-left"
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.08, duration: 0.4 }}
                                 >
                                     {/* Avatar */}
-                                    <div className="w-14 h-14 rounded-full bg-[#f0f0f0] border border-[#e0e0e0] flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    <div className="w-14 h-14 rounded-full bg-[#ece7dd] border border-[#ddd5c8] flex items-center justify-center overflow-hidden flex-shrink-0">
                                         {other.photos?.[0] ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img
@@ -80,17 +80,17 @@ export default function FlockScreen({ onBack, onOpenChat }: FlockScreenProps) {
                                         <p className="text-[#1a1a1a] font-medium text-sm">
                                             {other.name || "Anonymous"}
                                         </p>
-                                        <p className="text-[#888] text-xs mt-0.5">
+                                        <p className="text-[#8a7e6d] text-xs mt-0.5">
                                             {other.currentLocation?.country || "Somewhere"}
                                         </p>
-                                        <p className="text-[#bbb] text-xs mt-1">
+                                        <p className="text-[#b5aa98] text-xs mt-1">
                                             {match.species.name} ·{" "}
                                             {match.compatibilityScore}% match
                                         </p>
                                     </div>
 
                                     {/* Arrow */}
-                                    <span className="text-[#ccc] text-sm">→</span>
+                                    <span className="text-[#b5aa98] text-sm">→</span>
                                 </motion.button>
                             );
                         })}
