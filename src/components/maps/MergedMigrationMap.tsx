@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef, useMemo } from "react";
 import type { MigrationStop } from "@/lib/app-state";
+import type L from "leaflet";
 
 interface MergedMigrationMapProps {
   stopsA: MigrationStop[];
@@ -11,156 +12,137 @@ interface MergedMigrationMapProps {
   className?: string;
 }
 
-function geoToSvg(lat: number, lng: number, w: number, h: number) {
-  return { x: ((lng + 180) / 360) * w, y: ((90 - lat) / 180) * h };
-}
-
-function buildCurve(points: { x: number; y: number }[]) {
-  if (points.length < 2) return "";
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 1; i < points.length; i++) {
-    const prev = points[i - 1];
-    const curr = points[i];
-    const cpx1 = prev.x + (curr.x - prev.x) * 0.4;
-    const cpy1 = prev.y - Math.abs(curr.x - prev.x) * 0.08;
-    const cpx2 = curr.x - (curr.x - prev.x) * 0.4;
-    const cpy2 = curr.y - Math.abs(curr.x - prev.x) * 0.08;
-    d += ` C ${cpx1} ${cpy1}, ${cpx2} ${cpy2}, ${curr.x} ${curr.y}`;
-  }
-  return d;
-}
-
 export default function MergedMigrationMap({
   stopsA,
   stopsB,
-  width = 320,
   height = 200,
   className = "",
 }: MergedMigrationMapProps) {
-  const ptsA = stopsA.map((s) => ({
-    ...geoToSvg(s.lat, s.lng, width, height),
-    country: s.country,
-  }));
-  const ptsB = stopsB.map((s) => ({
-    ...geoToSvg(s.lat, s.lng, width, height),
-    country: s.country,
-  }));
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
 
-  const pathA = buildCurve(ptsA);
-  const pathB = buildCurve(ptsB);
+  const allStops = useMemo(() => [...stopsA, ...stopsB], [stopsA, stopsB]);
 
-  // Find overlapping countries
-  const countriesA = new Set(stopsA.map((s) => s.country));
-  const overlaps = stopsB.filter((s) => countriesA.has(s.country));
-  const overlapPts = overlaps.map((s) => geoToSvg(s.lat, s.lng, width, height));
+  const overlapCountries = useMemo(() => {
+    const countriesA = new Set(stopsA.map((s) => s.country));
+    return new Set(stopsB.filter((s) => countriesA.has(s.country)).map((s) => s.country));
+  }, [stopsA, stopsB]);
+
+  useEffect(() => {
+    if (!mapRef.current || allStops.length === 0) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const leaflet = await import("leaflet");
+
+      if (cancelled || !mapRef.current) return;
+
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+
+      const map = leaflet.map(mapRef.current, {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+        boxZoom: false,
+        keyboard: false,
+      });
+
+      mapInstanceRef.current = map;
+
+      leaflet
+        .tileLayer(
+          "https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png",
+          { maxZoom: 18, opacity: 0.4 }
+        )
+        .addTo(map);
+
+      const bounds = leaflet.latLngBounds(
+        allStops.map((s) => [s.lat, s.lng] as [number, number])
+      );
+      map.fitBounds(bounds, { padding: [15, 15], maxZoom: 5 });
+
+      // Path A
+      if (stopsA.length >= 2) {
+        leaflet
+          .polyline(
+            stopsA.map((s) => [s.lat, s.lng] as [number, number]),
+            { color: "#1a1a1a", weight: 2, opacity: 0.5 }
+          )
+          .addTo(map);
+      }
+
+      // Path B
+      if (stopsB.length >= 2) {
+        leaflet
+          .polyline(
+            stopsB.map((s) => [s.lat, s.lng] as [number, number]),
+            { color: "#666", weight: 2, opacity: 0.4, dashArray: "4 4" }
+          )
+          .addTo(map);
+      }
+
+      // Dots for A
+      stopsA.forEach((stop) => {
+        leaflet
+          .circleMarker([stop.lat, stop.lng], {
+            radius: 4,
+            color: "#1a1a1a",
+            fillColor: "#1a1a1a",
+            fillOpacity: 0.8,
+            weight: 1.5,
+          })
+          .addTo(map);
+      });
+
+      // Dots for B
+      stopsB.forEach((stop) => {
+        leaflet
+          .circleMarker([stop.lat, stop.lng], {
+            radius: 4,
+            color: "#666",
+            fillColor: "#666",
+            fillOpacity: 0.7,
+            weight: 1.5,
+          })
+          .addTo(map);
+      });
+
+      // Overlap glow rings
+      stopsB
+        .filter((s) => overlapCountries.has(s.country))
+        .forEach((stop) => {
+          leaflet
+            .circleMarker([stop.lat, stop.lng], {
+              radius: 12,
+              color: "transparent",
+              fillColor: "#1a1a1a",
+              fillOpacity: 0.12,
+            })
+            .addTo(map);
+        });
+    })();
+
+    return () => {
+      cancelled = true;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [allStops, stopsA, stopsB, overlapCountries]);
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className={`overflow-visible ${className}`}
-      style={{ width: "100%", height: "auto" }}
-    >
-      <defs>
-        <linearGradient id="gradA" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="var(--migration-start)" />
-          <stop offset="100%" stopColor="var(--migration-end)" />
-        </linearGradient>
-        <linearGradient id="gradB" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="var(--teal)" />
-          <stop offset="100%" stopColor="var(--teal)" stopOpacity="0.6" />
-        </linearGradient>
-        <filter id="mergeGlow">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      {/* Topo lines */}
-      {[0.25, 0.5, 0.75].map((r) => (
-        <line
-          key={r}
-          x1={0}
-          y1={height * r}
-          x2={width}
-          y2={height * r}
-          stroke="var(--border)"
-          strokeWidth="0.3"
-          strokeDasharray="4 8"
-          opacity={0.2}
-        />
-      ))}
-
-      {/* Path A */}
-      <motion.path
-        d={pathA}
-        fill="none"
-        stroke="url(#gradA)"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeDasharray="600"
-        initial={{ strokeDashoffset: 600 }}
-        animate={{ strokeDashoffset: 0 }}
-        transition={{ duration: 3, ease: "easeInOut" }}
-      />
-
-      {/* Path B */}
-      <motion.path
-        d={pathB}
-        fill="none"
-        stroke="url(#gradB)"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeDasharray="600"
-        initial={{ strokeDashoffset: 600 }}
-        animate={{ strokeDashoffset: 0 }}
-        transition={{ duration: 3, ease: "easeInOut", delay: 0.5 }}
-      />
-
-      {/* All dots for A */}
-      {ptsA.map((pt, i) => (
-        <motion.circle
-          key={`a-${i}`}
-          cx={pt.x}
-          cy={pt.y}
-          r={3}
-          fill="var(--migration-start)"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", delay: i * 0.15 + 0.5 }}
-        />
-      ))}
-
-      {/* All dots for B */}
-      {ptsB.map((pt, i) => (
-        <motion.circle
-          key={`b-${i}`}
-          cx={pt.x}
-          cy={pt.y}
-          r={3}
-          fill="var(--teal)"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", delay: i * 0.15 + 1 }}
-        />
-      ))}
-
-      {/* Overlap glow */}
-      {overlapPts.map((pt, i) => (
-        <motion.circle
-          key={`overlap-${i}`}
-          cx={pt.x}
-          cy={pt.y}
-          r={10}
-          fill="var(--overlap-glow)"
-          filter="url(#mergeGlow)"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 3, repeat: Infinity, delay: i * 0.3 + 2 }}
-        />
-      ))}
-    </svg>
+    <div
+      ref={mapRef}
+      className={`rounded-xl overflow-hidden ${className}`}
+      style={{ height, width: "100%" }}
+    />
   );
 }
