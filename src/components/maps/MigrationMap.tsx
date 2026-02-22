@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useMemo } from "react";
 import type { MigrationStop } from "@/lib/app-state";
-import type L from "leaflet";
+import mapboxgl from "mapbox-gl";
 
 interface MigrationMapProps {
   stops: MigrationStop[];
@@ -26,7 +26,7 @@ export default function MigrationMap({
   compact = false,
 }: MigrationMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
 
   const allStops = useMemo(() => [...stops, ...futureStops], [stops, futureStops]);
   const overlapSet = useMemo(
@@ -37,108 +37,145 @@ export default function MigrationMap({
   useEffect(() => {
     if (!mapRef.current || allStops.length === 0) return;
 
-    let cancelled = false;
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
-    (async () => {
-      const leaflet = await import("leaflet");
+    // Clean up previous map instance
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
 
-      if (cancelled || !mapRef.current) return;
+    const map = new mapboxgl.Map({
+      container: mapRef.current,
+      style: "mapbox://styles/mapbox/light-v11",
+      interactive: !compact,
+      scrollZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchZoomRotate: !compact ? true : false,
+      attributionControl: false,
+    });
 
-      // Clean up previous map instance
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
+    mapInstanceRef.current = map;
 
-      const map = leaflet.map(mapRef.current, {
-        zoomControl: false,
-        attributionControl: false,
-        dragging: !compact,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        touchZoom: !compact,
-        boxZoom: false,
-        keyboard: false,
-      });
+    // Fit bounds to all stops
+    const bounds = new mapboxgl.LngLatBounds();
+    allStops.forEach((s) => bounds.extend([s.lng, s.lat]));
+    map.fitBounds(bounds, {
+      padding: 20,
+      maxZoom: compact ? 3 : 5,
+      duration: 0,
+    });
 
-      mapInstanceRef.current = map;
-
-      leaflet
-        .tileLayer(
-          "https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png",
-          { maxZoom: 18, opacity: 0.4 }
-        )
-        .addTo(map);
-
-      const bounds = leaflet.latLngBounds(
-        allStops.map((s) => [s.lat, s.lng] as [number, number])
-      );
-      map.fitBounds(bounds, { padding: [20, 20], maxZoom: compact ? 3 : 5 });
-
+    map.on("load", () => {
       // Past migration path
       if (stops.length >= 2) {
-        leaflet
-          .polyline(
-            stops.map((s) => [s.lat, s.lng] as [number, number]),
-            { color: "#1a1a1a", weight: compact ? 1.5 : 2, opacity: 0.6 }
-          )
-          .addTo(map);
+        map.addSource("past-path", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: stops.map((s) => [s.lng, s.lat]),
+            },
+          },
+        });
+        map.addLayer({
+          id: "past-path",
+          type: "line",
+          source: "past-path",
+          paint: {
+            "line-color": "#1a1a1a",
+            "line-width": compact ? 1.5 : 2,
+            "line-opacity": 0.6,
+          },
+        });
       }
 
       // Future migration path (dashed)
       if (futureStops.length > 0 && stops.length > 0) {
         const lastStop = stops[stops.length - 1];
-        leaflet
-          .polyline(
-            [
-              [lastStop.lat, lastStop.lng] as [number, number],
-              ...futureStops.map((s) => [s.lat, s.lng] as [number, number]),
-            ],
-            { color: "#1a1a1a", weight: compact ? 1 : 1.5, opacity: 0.3, dashArray: "6 8" }
-          )
-          .addTo(map);
+        map.addSource("future-path", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [lastStop.lng, lastStop.lat],
+                ...futureStops.map((s) => [s.lng, s.lat]),
+              ],
+            },
+          },
+        });
+        map.addLayer({
+          id: "future-path",
+          type: "line",
+          source: "future-path",
+          paint: {
+            "line-color": "#1a1a1a",
+            "line-width": compact ? 1 : 1.5,
+            "line-opacity": 0.3,
+            "line-dasharray": [2, 2.5],
+          },
+        });
       }
 
-      // Stop markers
-      allStops.forEach((stop) => {
+      // Stop markers (overlap glow rings, dots, and labels)
+      allStops.forEach((stop, i) => {
         const isFuture = futureStops.includes(stop);
         const isOverlap = overlapSet.has(stop.country);
-        const radius = compact ? 3 : 5;
 
+        // Overlap glow ring
         if (isOverlap) {
-          leaflet
-            .circleMarker([stop.lat, stop.lng], {
-              radius: radius + 6,
-              color: "transparent",
-              fillColor: "#1a1a1a",
-              fillOpacity: 0.1,
-            })
+          const el = document.createElement("div");
+          const size = compact ? 18 : 22;
+          el.style.width = `${size}px`;
+          el.style.height = `${size}px`;
+          el.style.borderRadius = "50%";
+          el.style.backgroundColor = "rgba(26, 26, 26, 0.1)";
+          new mapboxgl.Marker({ element: el, anchor: "center" })
+            .setLngLat([stop.lng, stop.lat])
             .addTo(map);
         }
 
-        const marker = leaflet
-          .circleMarker([stop.lat, stop.lng], {
-            radius,
-            color: "#1a1a1a",
-            fillColor: isFuture ? "#999" : "#1a1a1a",
-            fillOpacity: isFuture ? 0.4 : 0.8,
-            weight: 1.5,
-          })
+        // Dot marker
+        const dot = document.createElement("div");
+        const radius = compact ? 6 : 10;
+        dot.style.width = `${radius}px`;
+        dot.style.height = `${radius}px`;
+        dot.style.borderRadius = "50%";
+        dot.style.border = "1.5px solid #1a1a1a";
+        dot.style.backgroundColor = isFuture ? "#999" : "#1a1a1a";
+        dot.style.opacity = isFuture ? "0.4" : "0.8";
+
+        const marker = new mapboxgl.Marker({ element: dot, anchor: "center" })
+          .setLngLat([stop.lng, stop.lat])
           .addTo(map);
 
+        // Labels
         if (showLabels && !compact) {
-          marker.bindTooltip(stop.country, {
-            permanent: true,
-            direction: "top",
+          const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
             offset: [0, -8],
-            className: "migration-label",
-          });
+            className: "migration-label-popup",
+          })
+            .setLngLat([stop.lng, stop.lat])
+            .setHTML(
+              `<span class="migration-label">${stop.country}</span>`
+            )
+            .addTo(map);
         }
       });
-    })();
+    });
 
     return () => {
-      cancelled = true;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
