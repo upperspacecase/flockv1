@@ -41,7 +41,7 @@ export default function FlockScreen({ onBack, onOpenChat }: FlockScreenProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                     >
-                        <div className="text-4xl mb-4 opacity-30">🕊️</div>
+                        <div className="text-sm mb-4 text-[#999]/30 tracking-[0.3em] uppercase">· · ·</div>
                         <p className="text-sm text-[#999] leading-relaxed max-w-[250px] mx-auto">
                             Your flock is still forming. Keep discovering to find your people.
                         </p>
@@ -84,7 +84,7 @@ export default function FlockScreen({ onBack, onOpenChat }: FlockScreenProps) {
                                             {other.currentLocation?.country || "Somewhere"}
                                         </p>
                                         <p className="text-[#bbb] text-xs mt-1">
-                                            {match.species.imageEmoji} {match.species.name} ·{" "}
+                                            {match.species.name} ·{" "}
                                             {match.compatibilityScore}% match
                                         </p>
                                     </div>

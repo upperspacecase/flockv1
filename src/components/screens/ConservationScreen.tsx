@@ -91,7 +91,6 @@ export default function ConservationScreen({ onBack }: ConservationScreenProps) 
                     className="flex items-center justify-between px-4 py-3 bg-card rounded-xl border border-border/40"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{species.imageEmoji}</span>
                       <span className="text-sm">{species.name}</span>
                     </div>
                     <span className="text-sm text-accent">${speciesTotal}</span>
@@ -126,7 +125,7 @@ export default function ConservationScreen({ onBack }: ConservationScreenProps) 
                         With {otherUser.name}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {match.species.name} {match.species.imageEmoji}
+                        {match.species.name}
                       </p>
                     </div>
                     <span className="text-sm text-accent font-medium">
@@ -148,7 +147,7 @@ export default function ConservationScreen({ onBack }: ConservationScreenProps) 
               When you match and contribute to conservation, your impact will
               appear here.
             </p>
-            <div className="mt-4 text-3xl opacity-30">🌿</div>
+            <div className="mt-4 text-sm text-muted-foreground/30 tracking-[0.3em] uppercase">· · ·</div>
           </motion.div>
         )}
       </div>

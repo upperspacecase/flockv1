@@ -3,58 +3,56 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 
+// Seeded PRNG for deterministic rendering
+function seededRandom(seed: number) {
+    let s = seed;
+    return () => {
+        s = (s * 16807 + 0) % 2147483647;
+        return (s - 1) / 2147483646;
+    };
+}
+
 /**
  * Bird celebration animation that plays when two users match.
- * Shows a flock of birds flying across the screen with particle effects.
+ * Shows a flock of abstract V-shapes flying across the screen.
  */
 export default function BirdCelebration() {
-    const birds = useMemo(
-        () =>
-            Array.from({ length: 12 }).map((_, i) => ({
-                id: i,
-                startX: -60 + Math.random() * 40,
-                startY: 30 + Math.random() * 40,
-                endX: 110 + Math.random() * 20,
-                endY: 10 + Math.random() * 30,
-                size: 16 + Math.random() * 14,
-                delay: i * 0.12 + Math.random() * 0.3,
-                duration: 2 + Math.random() * 1.2,
-                wobble: 8 + Math.random() * 15,
-                emoji:
-                    i % 4 === 0
-                        ? "🕊️"
-                        : i % 4 === 1
-                            ? "🐦"
-                            : i % 4 === 2
-                                ? "🐦‍⬛"
-                                : "🪶",
-            })),
-        []
-    );
+    const birds = useMemo(() => {
+        const rand = seededRandom(42);
+        return Array.from({ length: 12 }).map((_, i) => ({
+            id: i,
+            startX: -60 + rand() * 40,
+            startY: 30 + rand() * 40,
+            endX: 110 + rand() * 20,
+            endY: 10 + rand() * 30,
+            size: 16 + rand() * 14,
+            delay: i * 0.12 + rand() * 0.3,
+            duration: 2 + rand() * 1.2,
+            wobble: 8 + rand() * 15,
+        }));
+    }, []);
 
-    const feathers = useMemo(
-        () =>
-            Array.from({ length: 8 }).map((_, i) => ({
-                id: i,
-                x: 20 + Math.random() * 60,
-                startY: 20 + Math.random() * 30,
-                delay: 0.5 + i * 0.15,
-                duration: 2.5 + Math.random() * 1.5,
-                rotate: Math.random() * 360,
-                scale: 0.6 + Math.random() * 0.5,
-            })),
-        []
-    );
+    const feathers = useMemo(() => {
+        const rand = seededRandom(99);
+        return Array.from({ length: 8 }).map((_, i) => ({
+            id: i,
+            x: 20 + rand() * 60,
+            startY: 20 + rand() * 30,
+            delay: 0.5 + i * 0.15,
+            duration: 2.5 + rand() * 1.5,
+            rotate: rand() * 360,
+            scale: 0.6 + rand() * 0.5,
+        }));
+    }, []);
 
     return (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
-            {/* Flying birds */}
+            {/* Flying birds — SVG v-shapes */}
             {birds.map((bird) => (
                 <motion.div
                     key={bird.id}
                     className="absolute"
                     style={{
-                        fontSize: bird.size,
                         left: `${bird.startX}%`,
                         top: `${bird.startY}%`,
                     }}
@@ -76,22 +74,32 @@ export default function BirdCelebration() {
                         ease: [0.22, 1, 0.36, 1],
                     }}
                 >
-                    {bird.emoji}
+                    <svg
+                        width={bird.size}
+                        height={bird.size * 0.5}
+                        viewBox="0 0 24 12"
+                        fill="none"
+                        stroke="#1a1a1a"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                    >
+                        <path d="M1 10 Q6 2 12 6 Q18 2 23 10" />
+                    </svg>
                 </motion.div>
             ))}
 
-            {/* Floating feathers */}
+            {/* Floating lines */}
             {feathers.map((f) => (
                 <motion.div
                     key={`feather-${f.id}`}
-                    className="absolute text-xl"
+                    className="absolute"
                     style={{
                         left: `${f.x}%`,
                         top: `${f.startY}%`,
                     }}
                     initial={{ opacity: 0, scale: 0, rotate: 0 }}
                     animate={{
-                        opacity: [0, 0.5, 0.3, 0],
+                        opacity: [0, 0.4, 0.2, 0],
                         scale: [0, f.scale, f.scale * 0.8, 0],
                         rotate: [0, f.rotate, f.rotate + 180],
                         y: [0, 60, 120],
@@ -102,7 +110,9 @@ export default function BirdCelebration() {
                         ease: "easeOut",
                     }}
                 >
-                    🪶
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" strokeWidth="1" strokeLinecap="round">
+                        <path d="M3 13 Q8 1 13 5" />
+                    </svg>
                 </motion.div>
             ))}
 

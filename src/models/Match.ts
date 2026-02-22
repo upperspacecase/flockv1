@@ -6,7 +6,7 @@ export interface IMatch extends Document {
     species: {
         id: string;
         name: string;
-        imageEmoji: string;
+        imageLabel: string;
     };
     compatibilityScore: number;
     contributedAmount: number;
@@ -22,7 +22,7 @@ const MatchSchema = new Schema<IMatch>(
         species: {
             id: { type: String, required: true },
             name: { type: String, required: true },
-            imageEmoji: { type: String, required: true },
+            imageLabel: { type: String, required: true },
         },
         compatibilityScore: { type: Number, default: 0 },
         contributedAmount: { type: Number, default: 0 },

@@ -87,7 +87,7 @@ export default function MatchScreen({
             className="text-lg font-light mb-3"
             style={{ fontFamily: "Georgia, Cambria, serif" }}
           >
-            {match.species.name} {match.species.imageEmoji}
+            {match.species.name}
           </p>
           <p className="text-sm text-[#888] leading-relaxed mb-5">
             Would you like to support their journey together?

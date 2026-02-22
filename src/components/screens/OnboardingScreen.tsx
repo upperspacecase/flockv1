@@ -327,13 +327,30 @@ export default function OnboardingScreen({
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    {flexibility < 0.3
-                      ? "🌳"
-                      : flexibility < 0.6
-                        ? "🌿"
-                        : flexibility < 0.8
-                          ? "🍃"
-                          : "🕊️"}
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round">
+                      {flexibility < 0.3 ? (
+                        /* rooted — vertical line with branches */
+                        <>
+                          <line x1="16" y1="28" x2="16" y2="8" />
+                          <line x1="16" y1="14" x2="10" y2="8" />
+                          <line x1="16" y1="14" x2="22" y2="8" />
+                          <line x1="16" y1="20" x2="11" y2="16" />
+                          <line x1="16" y1="20" x2="21" y2="16" />
+                        </>
+                      ) : flexibility < 0.6 ? (
+                        /* swaying — curved stem */
+                        <path d="M16 28 Q14 20 16 14 Q18 8 14 4" />
+                      ) : flexibility < 0.8 ? (
+                        /* drifting — leaf shape */
+                        <path d="M8 22 Q16 6 24 10 Q16 14 8 22Z" />
+                      ) : (
+                        /* wind-blown — bird in flight */
+                        <>
+                          <path d="M4 18 Q10 10 16 14 Q22 10 28 18" />
+                          <line x1="16" y1="14" x2="16" y2="20" />
+                        </>
+                      )}
+                    </svg>
                   </motion.div>
                 </div>
               </div>
@@ -346,19 +363,16 @@ export default function OnboardingScreen({
                   {
                     value: "romantic" as const,
                     label: "A romantic co-migrant",
-                    icon: "🕊️🕊️",
                     desc: "Two birds flying in formation",
                   },
                   {
                     value: "friends" as const,
                     label: "Fellow travelers & friends",
-                    icon: "🐦‍⬛🐦🕊️",
                     desc: "A flock, diverse and vibrant",
                   },
                   {
                     value: "both" as const,
                     label: "Both — surprise me",
-                    icon: "✨",
                     desc: "Open to wherever the wind takes it",
                   },
                 ].map((opt) => (
@@ -371,7 +385,6 @@ export default function OnboardingScreen({
                       }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{opt.icon}</span>
                       <div>
                         <p className="text-[#1a1a1a] text-sm font-medium">
                           {opt.label}

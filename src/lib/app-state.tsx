@@ -46,7 +46,7 @@ export interface AppMatch {
   species: {
     id: string;
     name: string;
-    imageEmoji: string;
+    imageLabel: string;
   };
   compatibilityScore: number;
   contributedAmount: number;

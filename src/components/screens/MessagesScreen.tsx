@@ -222,8 +222,7 @@ export default function MessagesScreen({ onBack }: MessagesScreenProps) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{otherUser.name}</p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {otherUser.currentLocation?.country} · {match.species.name}{" "}
-                      {match.species.imageEmoji}
+                      {otherUser.currentLocation?.country} · {match.species.name}
                     </p>
                   </div>
                   <span className="text-xs text-muted-foreground/40">

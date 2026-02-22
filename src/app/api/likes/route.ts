@@ -75,7 +75,7 @@ export async function POST(request: Request) {
                     species: {
                         id: species.id,
                         name: species.name,
-                        imageEmoji: species.imageEmoji,
+                        imageLabel: species.imageLabel,
                     },
                     compatibilityScore: compatibility.score,
                 });

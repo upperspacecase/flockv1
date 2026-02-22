@@ -100,10 +100,10 @@ function AppContent() {
   const isTabScreen = tabScreens.includes(screen);
 
   const tabs = [
-    { id: "discover" as AppScreen, icon: "🔍", label: "Discover" },
-    { id: "flock" as AppScreen, icon: "🐦", label: "Flock", showLeaf: hasNewActivity },
-    { id: "messages" as AppScreen, icon: "💬", label: "Messages" },
-    { id: "profile" as AppScreen, icon: "👤", label: "Profile" },
+    { id: "discover" as AppScreen, label: "Discover" },
+    { id: "flock" as AppScreen, label: "Flock", showDot: hasNewActivity },
+    { id: "messages" as AppScreen, label: "Messages" },
+    { id: "profile" as AppScreen, label: "Profile" },
   ];
 
   return (
@@ -199,15 +199,14 @@ function AppContent() {
                   if (tab.id === "flock") markActivitySeen();
                   setScreen(tab.id);
                 }}
-                className={`relative flex flex-col items-center gap-0.5 px-4 py-1 rounded-lg transition-colors cursor-pointer ${screen === tab.id
+                className={`relative flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors cursor-pointer ${screen === tab.id
                     ? "text-[#1a1a1a]"
                     : "text-[#bbb] hover:text-[#888]"
                   }`}
               >
-                <span className="text-lg">{tab.icon}</span>
-                <span className="text-[10px] tracking-wide">{tab.label}</span>
-                {tab.showLeaf && (
-                  <span className="absolute -top-0.5 right-1 text-[9px] leading-none">🍃</span>
+                <span className={`text-[10px] tracking-widest uppercase ${screen === tab.id ? "font-medium" : ""}`}>{tab.label}</span>
+                {tab.showDot && (
+                  <span className="absolute -top-0.5 right-1 w-1.5 h-1.5 rounded-full bg-[#1a1a1a]" />
                 )}
               </button>
             ))}

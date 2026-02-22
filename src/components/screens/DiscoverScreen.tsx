@@ -288,7 +288,7 @@ export default function DiscoverScreen({
               <p className="text-sm text-muted-foreground/60">
                 Check back as more travelers arrive.
               </p>
-              <div className="mt-8 text-4xl opacity-40">🐦🐦🐦</div>
+              <div className="mt-8 text-sm text-muted-foreground/30 tracking-[0.3em] uppercase">· · ·</div>
               <button
                 onClick={() => {
                   setDismissed(new Set());
@@ -310,7 +310,7 @@ export default function DiscoverScreen({
             className="w-14 h-14 rounded-full border-2 border-[#ddd] hover:border-[#999] flex items-center justify-center text-xl text-[#bbb] hover:text-[#999] transition-colors cursor-pointer"
             title="Pass"
           >
-            ✕
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg>
           </button>
           <button
             onClick={handleSwipeRight}
@@ -318,7 +318,7 @@ export default function DiscoverScreen({
             className="w-14 h-14 rounded-full border-2 border-[#1a1a1a] bg-[#1a1a1a] flex items-center justify-center text-xl text-white hover:bg-[#333] transition-colors cursor-pointer disabled:opacity-50"
             title="Connect"
           >
-            ♥
+            <svg width="20" height="18" viewBox="0 0 20 18" fill="currentColor"><path d="M10 17.5s-1.1-.8-2.6-2C4.3 13 0 9.3 0 5.5 0 2.4 2.4 0 5.3 0 7 0 8.6.8 10 2.2 11.4.8 13 0 14.7 0 17.6 0 20 2.4 20 5.5c0 3.8-4.3 7.5-7.4 10-1.5 1.2-2.6 2-2.6 2z"/></svg>
           </button>
         </div>
       )}

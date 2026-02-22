@@ -5,7 +5,7 @@ export interface MigratorySpecies {
   description: string;
   migrationRoute: string;
   regions: string[];
-  imageEmoji: string;
+  imageLabel: string;
   funFact: string;
 }
 
@@ -18,7 +18,7 @@ export const migratorySpecies: MigratorySpecies[] = [
       "Arctic terns make the longest known migration of any animal, traveling from Arctic to Antarctic and back each year — roughly 71,000 km.",
     migrationRoute: "Arctic to Antarctic",
     regions: ["Northern Europe", "North America", "Southern Ocean"],
-    imageEmoji: "🕊️",
+    imageLabel: "Tern",
     funFact:
       "Over its lifetime, an Arctic tern flies roughly the equivalent of three round trips to the Moon.",
   },
@@ -30,7 +30,7 @@ export const migratorySpecies: MigratorySpecies[] = [
       "Bar-tailed godwits hold the record for the longest non-stop flight — over 11,000 km from Alaska to New Zealand without rest.",
     migrationRoute: "Alaska to New Zealand",
     regions: ["Southeast Asia", "Oceania", "North America"],
-    imageEmoji: "🐦",
+    imageLabel: "Godwit",
     funFact:
       "They fly for 11 days straight without eating, drinking, or sleeping.",
   },
@@ -42,7 +42,7 @@ export const migratorySpecies: MigratorySpecies[] = [
       "Monarchs travel up to 4,800 km from Canada to central Mexico, navigating using the sun and Earth's magnetic field.",
     migrationRoute: "North America to Mexico",
     regions: ["North America", "Central America"],
-    imageEmoji: "🦋",
+    imageLabel: "Monarch",
     funFact:
       "No single butterfly makes the entire round trip — it takes four generations.",
   },
@@ -54,7 +54,7 @@ export const migratorySpecies: MigratorySpecies[] = [
       "Humpback whales migrate up to 8,000 km between polar feeding grounds and tropical breeding waters.",
     migrationRoute: "Polar to Tropical waters",
     regions: ["South America", "Southern Ocean", "Southeast Asia", "Oceania"],
-    imageEmoji: "🐋",
+    imageLabel: "Whale",
     funFact:
       "Their songs can travel thousands of kilometers through the ocean.",
   },
@@ -66,7 +66,7 @@ export const migratorySpecies: MigratorySpecies[] = [
       "European turtle doves migrate between European breeding grounds and sub-Saharan African wintering grounds, crossing the Mediterranean and Sahara.",
     migrationRoute: "Europe to Sub-Saharan Africa",
     regions: ["Europe", "Africa", "Middle East"],
-    imageEmoji: "🕊️",
+    imageLabel: "Dove",
     funFact:
       "Their population has declined by 78% since 1980 due to habitat loss.",
   },
@@ -78,7 +78,7 @@ export const migratorySpecies: MigratorySpecies[] = [
       "Over 1.5 million wildebeest undertake a circular migration through the Serengeti-Mara ecosystem following the rains.",
     migrationRoute: "Serengeti to Masai Mara",
     regions: ["East Africa"],
-    imageEmoji: "🦬",
+    imageLabel: "Wildebeest",
     funFact:
       "The Great Migration involves over 2 million animals when you include zebras and gazelles.",
   },
