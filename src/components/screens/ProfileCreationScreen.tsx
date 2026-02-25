@@ -6,7 +6,7 @@ import type { AppUser } from "@/lib/app-state";
 
 interface ProfileCreationScreenProps {
     user: AppUser | null;
-    onComplete: (data: { name: string; lastTuesday: string; photos: string[] }) => void;
+    onComplete: (data: { name: string; lastTuesday: string; photos: string[] }) => Promise<void>;
     onSkip: () => void;
 }
 
@@ -20,6 +20,7 @@ export default function ProfileCreationScreen({
     const [photos, setPhotos] = useState<string[]>(user?.photos || []);
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
     const canComplete = name.trim().length >= 2 && photos.length > 0;
@@ -56,8 +57,14 @@ export default function ProfileCreationScreen({
 
     const handleSave = async () => {
         if (!canComplete) return;
+        setError(null);
         setSaving(true);
-        onComplete({ name: name.trim(), lastTuesday: lastTuesday.trim(), photos });
+        try {
+            await onComplete({ name: name.trim(), lastTuesday: lastTuesday.trim(), photos });
+        } catch (err) {
+            setError("Something went wrong saving your profile. Please try again.");
+            setSaving(false);
+        }
     };
 
     return (
@@ -183,6 +190,17 @@ export default function ProfileCreationScreen({
                     />
                 </motion.div>
 
+                {/* Error feedback */}
+                {error && (
+                    <motion.p
+                        className="text-sm text-red-500 text-center mb-2"
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        {error}
+                    </motion.p>
+                )}
+
                 {/* Actions */}
                 <motion.div
                     className="mt-auto space-y-3"
@@ -194,8 +212,8 @@ export default function ProfileCreationScreen({
                         onClick={handleSave}
                         disabled={!canComplete || saving}
                         className={`w-full py-3.5 rounded-full text-sm tracking-widest uppercase transition-all cursor-pointer ${canComplete
-                                ? "bg-[#c8a84e] text-[#1a1a1a] hover:bg-[#b89940]"
-                                : "bg-[#ece7dd] text-[#b5aa98] cursor-not-allowed"
+                            ? "bg-[#c8a84e] text-[#1a1a1a] hover:bg-[#b89940]"
+                            : "bg-[#ece7dd] text-[#b5aa98] cursor-not-allowed"
                             }`}
                     >
                         {saving ? "Saving..." : "Save & continue"}

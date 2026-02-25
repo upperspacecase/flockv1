@@ -200,8 +200,8 @@ function AppContent() {
                   setScreen(tab.id);
                 }}
                 className={`relative flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors cursor-pointer ${screen === tab.id
-                    ? "text-[#1a1a1a]"
-                    : "text-[#b5aa98] hover:text-[#8a7e6d]"
+                  ? "text-[#1a1a1a]"
+                  : "text-[#b5aa98] hover:text-[#8a7e6d]"
                   }`}
               >
                 <span className={`text-[10px] tracking-widest uppercase ${screen === tab.id ? "font-medium" : ""}`}>{tab.label}</span>
@@ -261,12 +261,12 @@ function AppContent() {
                   Sign in to save your migration and find your flock.
                 </p>
                 <div className="flex flex-col gap-3 w-full">
-                  <SignUpButton>
+                  <SignUpButton mode="redirect">
                     <button className="w-full px-8 py-3.5 rounded-full bg-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#b89940] transition-all cursor-pointer">
                       Create Account
                     </button>
                   </SignUpButton>
-                  <SignInButton>
+                  <SignInButton mode="redirect">
                     <button className="w-full px-8 py-3.5 rounded-full border border-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase hover:bg-[#c8a84e] hover:text-[#1a1a1a] transition-all cursor-pointer">
                       Sign In
                     </button>
@@ -320,17 +320,16 @@ function AppContent() {
             <ProfileCreationScreen
               user={dbUser}
               onComplete={async (data) => {
-                try {
-                  const res = await fetch("/api/users/me", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                  });
-                  const result = await res.json();
-                  if (result.user) setDbUser(result.user);
-                } catch (err) {
-                  console.error("Failed to save profile:", err);
+                const res = await fetch("/api/users/me", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(data),
+                });
+                if (!res.ok) {
+                  throw new Error("Failed to save profile");
                 }
+                const result = await res.json();
+                if (result.user) setDbUser(result.user);
 
                 if (pendingLikeId) {
                   try {

@@ -49,13 +49,37 @@ export async function PUT(request: Request) {
             }
         }
 
+        // Check if this user already exists in the DB
+        const existingUser = await User.findOne({ clerkId: userId });
+
+        if (existingUser) {
+            // Existing user — safe to do a partial update (e.g. name/bio/photos only)
+            const user = await User.findOneAndUpdate(
+                { clerkId: userId },
+                { $set: { ...body } },
+                { new: true, runValidators: false }
+            ).lean();
+            return NextResponse.json({ user });
+        }
+
+        // New user — must include migration data for required fields
+        // Provide sensible defaults if not present (e.g. profile creation before onboarding saved)
+        const defaultStop = {
+            country: "Unknown",
+            countryCode: "XX",
+            lat: 0,
+            lng: 0,
+        };
+
         const user = await User.findOneAndUpdate(
             { clerkId: userId },
             {
                 $set: {
                     ...body,
                     clerkId: userId,
-                    hasOnboarded: true,
+                    hasOnboarded: !!(body.birthCountry && body.currentLocation),
+                    birthCountry: body.birthCountry || defaultStop,
+                    currentLocation: body.currentLocation || defaultStop,
                 },
             },
             { upsert: true, new: true, runValidators: true }
