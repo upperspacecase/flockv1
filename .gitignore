@@ -42,3 +42,4 @@ next-env.d.ts
 
 # external repos
 /marketingskills
+.env*.local
