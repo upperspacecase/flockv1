@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=630&fit=crop",
+        url: "/hero.jpg",
         width: 1200,
         height: 630,
         alt: "Migratory Species — Find Your Flock",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     description:
       "Connect with people who share your migration patterns. Expats, nomads, third-culture kids — matched by where you've been and where you're going.",
     images: [
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=630&fit=crop",
+      "/hero.jpg",
     ],
   },
 };

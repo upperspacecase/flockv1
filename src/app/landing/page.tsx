@@ -64,8 +64,8 @@ export default function LandingPage() {
         {/* Background image */}
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&h=900&fit=crop"
-            alt="Migratory birds over mountains"
+            src="/hero.jpg"
+            alt="A flock of birds migrating at sunset over wetlands"
             fill
             className="object-cover"
             priority
