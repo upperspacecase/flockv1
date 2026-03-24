@@ -85,10 +85,17 @@ export async function POST(request: Request) {
                     .populate("userB")
                     .lean();
 
+                // Normalize: add otherUser field relative to the current user
+                const isUserA = populatedMatch!.userA._id.toString() === currentUser._id.toString();
+                const normalizedMatch = {
+                    ...populatedMatch,
+                    otherUser: isUserA ? populatedMatch!.userB : populatedMatch!.userA,
+                };
+
                 return NextResponse.json({
                     liked: true,
                     matched: true,
-                    match: populatedMatch,
+                    match: normalizedMatch,
                 });
             }
         }

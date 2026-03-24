@@ -83,7 +83,6 @@ function AppContent() {
 
   const handleJustSayHello = () => {
     setScreen("messages");
-    setCurrentMatchView(null);
   };
 
   // Loading state — show loader for any screen except splash/onboarding (pre-auth screens)
@@ -151,7 +150,10 @@ function AppContent() {
                 >
                   <FlockScreen
                     onBack={() => setScreen("discover")}
-                    onOpenChat={() => setScreen("messages")}
+                    onOpenChat={(match) => {
+                      setCurrentMatchView(match);
+                      setScreen("messages");
+                    }}
                   />
                 </motion.div>
               )}
@@ -167,6 +169,7 @@ function AppContent() {
                 >
                   <MessagesScreen
                     onBack={() => setScreen("discover")}
+                    initialMatch={currentMatchView}
                   />
                 </motion.div>
               )}

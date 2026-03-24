@@ -7,6 +7,7 @@ import { useApp, type AppMatch, type MigrationStop } from "@/lib/app-state";
 
 interface MessagesScreenProps {
   onBack: () => void;
+  initialMatch?: AppMatch | null;
 }
 
 interface ChatMessage {
@@ -161,9 +162,9 @@ function ChatScreen({ match, onBack }: { match: AppMatch; onBack: () => void }) 
   );
 }
 
-export default function MessagesScreen({ onBack }: MessagesScreenProps) {
+export default function MessagesScreen({ onBack, initialMatch }: MessagesScreenProps) {
   const { matches, refreshMatches } = useApp();
-  const [activeChat, setActiveChat] = useState<AppMatch | null>(null);
+  const [activeChat, setActiveChat] = useState<AppMatch | null>(initialMatch || null);
 
   useEffect(() => {
     refreshMatches();
