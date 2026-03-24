@@ -52,7 +52,7 @@ export default function LandingPage() {
           Migratory Species
         </span>
         <Link
-          href="/"
+          href="/sign-in"
           className="px-5 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs tracking-widest uppercase hover:bg-white/30 transition-colors border border-white/20"
         >
           Log In
@@ -101,13 +101,13 @@ export default function LandingPage() {
             transition={{ delay: 0.6, duration: 0.6 }}
           >
             <Link
-              href="/"
+              href="/sign-up"
               className="inline-block px-10 py-4 rounded-full bg-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase font-medium hover:bg-[#b89940] transition-colors shadow-lg"
             >
               Find Your Flock
             </Link>
             <Link
-              href="/"
+              href="/sign-in"
               className="text-white/70 text-sm hover:text-white transition-colors"
             >
               Already have an account? <span className="underline underline-offset-2">Log In</span>
@@ -346,7 +346,7 @@ export default function LandingPage() {
             custom={1}
           >
             <Link
-              href="/"
+              href="/sign-up"
               className="inline-block px-10 py-4 rounded-full bg-[#c8a84e] text-[#1a1a1a] text-sm tracking-widest uppercase font-medium hover:bg-[#b89940] transition-colors shadow-lg"
             >
               Get Started

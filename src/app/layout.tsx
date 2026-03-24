@@ -1,11 +1,46 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
   title: "Migratory Species — Find Your Flock",
   description:
     "A connection app for people who move through the world. Migratory species supporting migratory species.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Migratory Species",
+  },
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "Migratory Species — Find Your Flock",
+    description:
+      "Connect with people who share your migration patterns. Expats, nomads, third-culture kids — matched by where you've been and where you're going.",
+    siteName: "Migratory Species",
+    type: "website",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Migratory Species — Find Your Flock",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Migratory Species — Find Your Flock",
+    description:
+      "Connect with people who share your migration patterns. Expats, nomads, third-culture kids — matched by where you've been and where you're going.",
+    images: [
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=630&fit=crop",
+    ],
+  },
 };
 
 export const viewport: Viewport = {
@@ -72,6 +107,7 @@ export default function RootLayout({
     >
       <html lang="en">
         <body className="antialiased">
+          <ServiceWorkerRegistrar />
           {children}
         </body>
       </html>
