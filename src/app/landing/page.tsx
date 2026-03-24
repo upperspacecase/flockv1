@@ -45,12 +45,15 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#f4efe7] text-[#1a1a1a] overflow-x-hidden">
       {/* ─── Header ─── */}
       <nav className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-5 max-w-5xl mx-auto">
-        <span
-          className="text-lg tracking-wide text-white"
-          style={{ fontFamily: "Georgia, Cambria, serif" }}
-        >
-          Migratory Species
-        </span>
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Migratory Species" width={32} height={32} className="drop-shadow-md" />
+          <span
+            className="text-lg tracking-wide text-white"
+            style={{ fontFamily: "Georgia, Cambria, serif" }}
+          >
+            Migratory Species
+          </span>
+        </div>
         <Link
           href="/sign-in"
           className="px-5 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs tracking-widest uppercase hover:bg-white/30 transition-colors border border-white/20"
@@ -358,12 +361,15 @@ export default function LandingPage() {
       {/* ─── Footer ─── */}
       <footer className="border-t border-[#ddd5c8] py-8 bg-[#f4efe7]">
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
-          <span
-            className="text-sm text-[#8a7e6d]"
-            style={{ fontFamily: "Georgia, Cambria, serif" }}
-          >
-            Migratory Species
-          </span>
+          <div className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Migratory Species" width={24} height={24} />
+            <span
+              className="text-sm text-[#8a7e6d]"
+              style={{ fontFamily: "Georgia, Cambria, serif" }}
+            >
+              Migratory Species
+            </span>
+          </div>
           <span className="text-xs text-[#b5aa98]">
             Connection through migration.
           </span>
