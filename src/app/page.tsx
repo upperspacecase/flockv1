@@ -86,8 +86,8 @@ function AppContent() {
     setCurrentMatchView(null);
   };
 
-  // Loading state
-  if (loading && screen !== "splash" && screen !== "onboarding") {
+  // Loading state — show loader for any screen except splash/onboarding (pre-auth screens)
+  if (loading && screen !== "splash" && screen !== "onboarding" && screen !== "auth") {
     return (
       <div className="max-w-md mx-auto h-screen-safe flex items-center justify-center bg-[#f4efe7]">
         <BreathingLoader />

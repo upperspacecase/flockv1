@@ -91,7 +91,9 @@ const AppContext = createContext<AppState | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded: clerkLoaded } = useUser();
-  const [screen, setScreen] = useState<AppScreen>("splash");
+  // Check if there's pending onboarding data — if so, user is returning from Clerk signup
+  const hasPendingOnboarding = typeof window !== "undefined" && !!localStorage.getItem("flock_onboarding_data");
+  const [screen, setScreen] = useState<AppScreen>(hasPendingOnboarding ? "discover" : "splash");
   const [dbUser, setDbUser] = useState<AppUser | null>(null);
   const [profiles, setProfiles] = useState<AppUser[]>([]);
   const [matches, setMatches] = useState<AppMatch[]>([]);
