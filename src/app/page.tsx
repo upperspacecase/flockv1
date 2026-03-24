@@ -37,7 +37,7 @@ function AppContent() {
   } = useApp();
 
   const [pendingLikeId, setPendingLikeId] = useState<string | null>(null);
-  const isProfileComplete = !!(dbUser?.name && dbUser.photos?.length > 0);
+  const isProfileComplete = !!dbUser?.name;
 
   // Handle onboarding completion
   const handleOnboardingComplete = async (data: OnboardingResult) => {

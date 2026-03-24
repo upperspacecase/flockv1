@@ -23,13 +23,14 @@ export default function ProfileCreationScreen({
     const [error, setError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const canComplete = name.trim().length >= 2 && photos.length > 0;
+    const canComplete = name.trim().length >= 2;
 
     const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || photos.length >= 2) return;
 
         setUploading(true);
+        setError(null);
         try {
             const formData = new FormData();
             formData.append("file", file);
@@ -40,11 +41,17 @@ export default function ProfileCreationScreen({
             });
             const data = await res.json();
 
+            if (!res.ok) {
+                setError(data.error || "Upload failed. Please try again.");
+                return;
+            }
+
             if (data.url) {
                 setPhotos((prev) => [...prev, data.url]);
             }
         } catch (err) {
             console.error("Upload failed:", err);
+            setError("Upload failed. Check your connection and try again.");
         } finally {
             setUploading(false);
             if (fileRef.current) fileRef.current.value = "";

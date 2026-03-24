@@ -228,14 +228,14 @@ export default function DiscoverScreen({
   const handleSwipeRight = async () => {
     if (remaining.length === 0 || liking) return;
     const profile = remaining[0];
-    setDismissed((prev) => new Set([...prev, profile._id]));
-    setLiking(true);
 
     if (!isProfileComplete) {
-      setLiking(false);
       onNeedProfile(profile._id);
       return;
     }
+
+    setDismissed((prev) => new Set([...prev, profile._id]));
+    setLiking(true);
 
     try {
       const res = await fetch("/api/likes", {
